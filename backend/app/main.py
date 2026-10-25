@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes import days, setup
+from .routes import days, logs, setup
 
 load_dotenv()
 app = FastAPI()
@@ -19,3 +19,4 @@ app.add_middleware(
 
 app.include_router(setup.router, prefix="/api")
 app.include_router(days.router, prefix="/api")
+app.include_router(logs.router, prefix="/api")

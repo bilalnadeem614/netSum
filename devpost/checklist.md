@@ -5,7 +5,7 @@ status: approved
 
 # Build Checklist
 
-Build mode: fast (commit locally only; learner pushes)
+Build mode: fast (no commits by Claude; learner commits and pushes)
 
 ## Slices
 
@@ -19,7 +19,7 @@ Build mode: fast (commit locally only; learner pushes)
   Learner check: Open `http://localhost:5173`, enter balances for Cash and Account plus one extra method, land on Home, reload, and confirm balances are still there and the look matches the dark bank-app feel.
   Commit: `Add scaffold, payment method setup and Home balances`
 
-- [ ] **2. Define expenses and add logs that move balances**
+- [x] **2. Define expenses and add logs that move balances**
   Becomes usable: Finish onboarding's expense step, then on Home tap Add log (expense, amount, method, note); the log shows in today's list and the method balance drops. Logs can be edited and deleted.
   Why now: Logs are the input the kernel needs; the gate cannot be tried without them.
   PRD ref: `prd.md > Daily Logs`, `prd.md > The Core Journey` (steps 3, 6)

@@ -26,3 +26,12 @@ button:disabled { opacity: .4; cursor: default; }
 .banner { color: var(--red); border: 1px solid var(--red); border-radius: var(--radius); padding: 8px; }
 .balances { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 16px; }
 .balances > div { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+select {
+  background: var(--panel); color: var(--text); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 10px;
+}
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+.gap { margin-top: 24px; }
+.num.sm { font-size: 1rem; }
+.log { border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.log button { margin: 0; padding: 6px 10px; }

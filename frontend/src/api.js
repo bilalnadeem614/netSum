@@ -1,11 +1,11 @@
 const URL = import.meta.env.VITE_API_URL
 
-export async function api(path, body) {
+export async function api(path, body, method) {
   let res
   try {
     res = await fetch(`${URL}/api${path}`, {
-      method: body ? 'POST' : 'GET',
-      headers: body && { 'Content-Type': 'application/json' },
+      method: method || (body ? 'POST' : 'GET'),
+      headers: body ? { 'Content-Type': 'application/json' } : {},
       body: body && JSON.stringify(body),
     })
   } catch {

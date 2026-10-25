@@ -23,4 +23,4 @@ Plans: `devpost/scope.md`, `devpost/prd.md`, `devpost/spec.md`. Build progress: 
 - Day-close gate lives only in `backend/app/balances.py` and `backend/app/routes/days.py`.
 - Closed days are read-only (403 on edit).
 - Secrets only in git-ignored `.env`; commit `.env.example`.
-- Git: commit locally after each verified slice. **Never push**; the user pushes.
+- Git: **never commit and never push**. The user does all commits and pushes. Leave changes uncommitted.

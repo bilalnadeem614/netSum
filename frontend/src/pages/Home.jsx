@@ -1,16 +1,22 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api.js'
+import AddLog from './AddLog.jsx'
 
 export default function Home() {
   const [home, setHome] = useState(null)
   const [error, setError] = useState('')
+  const [form, setForm] = useState(null) // null = hidden, {} = add, log = edit
 
-  useEffect(() => {
-    api('/home').then(setHome).catch((e) => setError(e.message))
-  }, [])
+  const load = () => api('/home').then(setHome).catch((e) => setError(e.message))
+  useEffect(() => { load() }, [])
+
+  const saved = () => { setForm(null); load() }
+  const remove = (id) => api(`/logs/${id}`, null, 'DELETE').then(load).catch((e) => setError(e.message))
 
   if (error) return <p className="banner">{error}</p>
   if (!home) return <p className="muted">Loading…</p>
+
+  const method = (id) => home.balances.find((b) => b.id === id)?.name
 
   return (
     <section>
@@ -23,7 +29,24 @@ export default function Home() {
           </div>
         ))}
       </div>
-      <p className="muted">No logs yet.</p>
+      {form ? (
+        <AddLog home={home} log={form.id ? form : null} onSaved={saved} onCancel={() => setForm(null)} />
+      ) : (
+        <button onClick={() => setForm({})}>Add log</button>
+      )}
+      <h2 className="gap">Today</h2>
+      {!home.logs.length && <p className="muted">No logs yet.</p>}
+      {home.logs.map((l) => (
+        <div className="row log" key={l.id}>
+          <span>
+            {l.expense}
+            <small className="muted"> · {method(l.method_id)}{l.description && ` · ${l.description}`}</small>
+          </span>
+          <strong className="num sm">-{l.amount}</strong>
+          <button className="ghost" onClick={() => setForm(l)}>Edit</button>
+          <button className="ghost" onClick={() => remove(l.id)}>Delete</button>
+        </div>
+      ))}
     </section>
   )
 }
