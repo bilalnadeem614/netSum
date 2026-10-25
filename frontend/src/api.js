@@ -1,12 +1,11 @@
 const URL = import.meta.env.VITE_API_URL
-const KEY = import.meta.env.VITE_API_KEY
 
 export async function api(path, body) {
   let res
   try {
     res = await fetch(`${URL}/api${path}`, {
       method: body ? 'POST' : 'GET',
-      headers: { 'X-API-Key': KEY, ...(body && { 'Content-Type': 'application/json' }) },
+      headers: body && { 'Content-Type': 'application/json' },
       body: body && JSON.stringify(body),
     })
   } catch {

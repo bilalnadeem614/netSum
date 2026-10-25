@@ -198,7 +198,7 @@ Implementation details derived from these (not separate learner choices): the `d
 **Learner uncertainty:** how to set up the repo for Claude Code (CLAUDE.md and the other `.md` files). Clarified here: `CLAUDE.md` at the repo root is read by Claude Code at the start of each session. It holds the run and test commands, conventions (money is `Decimal`; the gate lives only in `balances.py` and `days.py`; closed days are read-only), and pointers to `devpost/prd.md` and `devpost/spec.md`. `5-build` will write it in step 1 and keep progress in `devpost/checklist.md`. Check during the build: start a fresh Claude Code session and confirm it follows a rule from `CLAUDE.md` without being told.
 
 Open:
-- **Public API, no accounts (resolved):** once deployed, anyone who finds the Render URL could read, add, or close the data. Decision on approval: one shared secret. Backend env `API_KEY`; frontend sends it as an `X-API-Key` header; backend rejects any request without it (a few lines of middleware in `main.py`, no accounts); `API_KEY` / `VITE_API_KEY` added to the env files. Tradeoff: the key is bundled into the frontend, so it only stops casual access, not a determined person. Real auth comes with multi-user.
+- **Public API, no accounts:** no API key for the hackathon MVP; add a shared-secret header check only if needed later.
 - Library versions to pin at build step 1.
 - Whether the open day shows tomorrow's date right after you close tonight (current design: yes, it is simply the next date). Adjust in the build if it feels odd.
 - Currency symbol/format (shown as plain numbers for now).
