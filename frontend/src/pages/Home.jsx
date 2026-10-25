@@ -41,6 +41,12 @@ export default function Home() {
           </div>
         ))}
       </div>
+      {home.goal && (
+        <p className={+home.non_essential_spent > +home.goal.daily_threshold ? 'red' : 'muted'}>
+          Non-essential today: {home.non_essential_spent} / {home.goal.daily_threshold}
+          {+home.non_essential_spent > +home.goal.daily_threshold && ' · over limit'}
+        </p>
+      )}
       {form ? (
         <AddLog home={home} log={form.id ? form : null} onSaved={saved} onCancel={() => setForm(null)} />
       ) : (

@@ -59,7 +59,7 @@ Build mode: fast (no commits by Claude; learner commits and pushes)
   Learner check: Add a loan and a saving, make a payment and a deposit, and see the charts change and the method balance drop.
   Commit: `Add loans and savings with charts`
 
-- [ ] **6. Saving goal and daily non-essential threshold**
+- [x] **6. Saving goal and daily non-essential threshold**
   Becomes usable: Set a goal (purpose, amount, daily threshold); Home shows today's non-essential spend against the threshold; goal progress is charted.
   Why now: Smaller add-on to the working loop, so it comes after the core is proven.
   PRD ref: `prd.md > Savings and Saving Goals`

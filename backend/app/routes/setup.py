@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 
 from .. import balances
 from ..db import db
-from ..schemas import ExpenseIn, LoanIn, MethodIn, SavingIn
+from ..schemas import ExpenseIn, GoalIn, LoanIn, MethodIn, SavingIn
 
 router = APIRouter()
 
@@ -54,3 +54,14 @@ def savings():
 def add_savings(items: list[SavingIn]):
     db().table("savings").insert([x.model_dump(mode="json") for x in items]).execute()
     return balances.savings_with_totals()
+
+
+@router.get("/goal")
+def goal():
+    return balances.goal_with_progress()
+
+
+@router.put("/goal")
+def set_goal(item: GoalIn):
+    db().table("goal").upsert({"id": 1, **item.model_dump(mode="json")}).execute()
+    return balances.goal_with_progress()

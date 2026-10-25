@@ -44,7 +44,7 @@ def differences(calc, real):
 
 
 def day_logs(day):
-    return db().table("logs").select("*, expenses(name), loans(name), savings(name)").eq("day", day).order("id").execute().data
+    return db().table("logs").select("*, expenses(name, essential), loans(name), savings(name)").eq("day", day).order("id").execute().data
 
 
 def calculated_balances(day):
@@ -80,3 +80,25 @@ def savings_with_totals():
                 series.append({"day": l["day"], "total": f"{total:.2f}"})
         out.append({**sv, "starting_amount": f"{Decimal(str(sv['starting_amount'])):.2f}", "total": f"{total:.2f}", "series": series})
     return out
+
+
+def non_essential_spend(logs):
+    """Sum of the day's logs whose expense is flagged non-essential. Pure."""
+    return sum(
+        (Decimal(str(l["amount"])) for l in logs if l["expenses"] and not l["expenses"]["essential"]),
+        Decimal(0),
+    )
+
+
+def goal_with_progress():
+    rows = db().table("goal").select("*").execute().data
+    if not rows:
+        return None
+    g = rows[0]
+    saved = sum((Decimal(s["total"]) for s in savings_with_totals()), Decimal(0))
+    return {
+        "purpose": g["purpose"],
+        "goal_amount": f"{Decimal(str(g['goal_amount'])):.2f}",
+        "daily_threshold": f"{Decimal(str(g['daily_threshold'])):.2f}",
+        "saved": f"{saved:.2f}",
+    }

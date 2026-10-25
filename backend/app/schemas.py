@@ -43,3 +43,9 @@ class LogIn(BaseModel):
 
 class CloseIn(BaseModel):
     real: dict[int, Decimal]
+
+
+class GoalIn(BaseModel):
+    purpose: str
+    goal_amount: Decimal = Field(gt=0)
+    daily_threshold: Decimal = Field(ge=0)

@@ -32,6 +32,8 @@ def home():
         ],
         "logs": [_log_out(l) for l in logs],
         "expenses": db().table("expenses").select("*").order("id").execute().data,
+        "goal": balances.goal_with_progress(),
+        "non_essential_spent": f"{balances.non_essential_spend(logs):.2f}",
         "loans": balances.loans_with_remaining(),
         "savings": balances.savings_with_totals(),
     }

@@ -5,10 +5,17 @@ import { api } from '../api.js'
 export default function Savings({ onBack }) {
   const [savings, setSavings] = useState(null)
   const [f, setF] = useState({ name: '', starting_amount: '' })
+  const [goal, setGoal] = useState(undefined) // undefined = loading, null = none set
+  const [g, setG] = useState({ purpose: '', goal_amount: '', daily_threshold: '' })
   const [error, setError] = useState('')
 
   const load = () => api('/savings').then(setSavings).catch((e) => setError(e.message))
-  useEffect(() => { load() }, [])
+  const loadGoal = () =>
+    api('/goal').then((x) => { setGoal(x); if (x) setG(x) }).catch((e) => setError(e.message))
+  useEffect(() => { load(); loadGoal() }, [])
+
+  const saveGoal = () =>
+    api('/goal', g, 'PUT').then((x) => setGoal(x)).catch((e) => setError(e.message))
 
   const add = () =>
     api('/savings', [{ ...f, starting_amount: f.starting_amount || '0' }])
@@ -19,7 +26,22 @@ export default function Savings({ onBack }) {
 
   return (
     <section>
-      <h2>Savings</h2>
+      <h2>Goal</h2>
+      {goal && (
+        <>
+          <p className="muted">{goal.purpose}: {goal.saved} of {goal.goal_amount}</p>
+          <div className="bar"><div style={{ width: `${Math.min(100, (goal.saved / goal.goal_amount) * 100)}%` }} /></div>
+        </>
+      )}
+      <div className="row">
+        <input placeholder="Purpose" value={g.purpose} onChange={(e) => setG({ ...g, purpose: e.target.value })} />
+        <input type="number" step="0.01" placeholder="Goal amount" value={g.goal_amount} onChange={(e) => setG({ ...g, goal_amount: e.target.value })} />
+        <input type="number" step="0.01" placeholder="Daily limit" value={g.daily_threshold} onChange={(e) => setG({ ...g, daily_threshold: e.target.value })} />
+      </div>
+      <button className="ghost" disabled={!g.purpose.trim() || !(+g.goal_amount > 0) || g.daily_threshold === ''} onClick={saveGoal}>
+        {goal ? 'Update goal' : 'Set goal'}
+      </button>
+      <h2 className="gap">Savings</h2>
       {!savings.length && <p className="muted">No savings.</p>}
       {savings.map((s) => (
         <div key={s.id}>
