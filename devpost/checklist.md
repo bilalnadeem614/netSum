@@ -39,7 +39,7 @@ Build mode: fast (no commits by Claude; learner commits and pushes)
   Learner check: Close with one wrong number and see it blocked in red; fix a missing log, close again successfully, and see Home reset with new opening balances.
   Commit: `Add day-close reconciliation gate`
 
-- [ ] **4. History of closed days**
+- [x] **4. History of closed days**
   Becomes usable: History lists closed days newest first; tapping one shows its logs and closing balances; closed days cannot be edited; a missed day shows "Catching up: <date>".
   Why now: Completes the close loop and proves the opening-balance chain across multiple days.
   PRD ref: `prd.md > History`, `prd.md > States and Boundaries` (Closed day, Missed day, No history yet)

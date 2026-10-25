@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import { api } from '../api.js'
 import AddLog from './AddLog.jsx'
 import CloseDay from './CloseDay.jsx'
+import History from './History.jsx'
 
 export default function Home() {
   const [home, setHome] = useState(null)
   const [error, setError] = useState('')
   const [form, setForm] = useState(null) // null = hidden, {} = add, log = edit
   const [closing, setClosing] = useState(false)
+  const [history, setHistory] = useState(false)
 
   const load = () => api('/home').then(setHome).catch((e) => setError(e.message))
   useEffect(() => { load() }, [])
@@ -17,13 +19,16 @@ export default function Home() {
 
   if (error) return <p className="banner">{error}</p>
   if (!home) return <p className="muted">Loading…</p>
+  if (history) return <History onBack={() => setHistory(false)} />
   if (closing) return <CloseDay onBack={() => setClosing(false)} onClosed={() => { setClosing(false); load() }} />
 
   const method = (id) => home.balances.find((b) => b.id === id)?.name
 
   return (
     <section>
-      <p className="muted">{home.day}</p>
+      <p className="muted">
+        {home.day < new Date().toLocaleDateString('en-CA') ? `Catching up: ${home.day}` : home.day}
+      </p>
       <div className="balances">
         {home.balances.map((b) => (
           <div key={b.id}>
@@ -38,6 +43,7 @@ export default function Home() {
         <>
           <button onClick={() => setForm({})}>Add log</button>
           <button className="ghost" onClick={() => setClosing(true)}>Close day</button>
+          <button className="ghost" onClick={() => setHistory(true)}>History</button>
         </>
       )}
       <h2 className="gap">Today</h2>
