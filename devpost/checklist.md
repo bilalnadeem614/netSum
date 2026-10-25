@@ -29,7 +29,7 @@ Build mode: fast (no commits by Claude; learner commits and pushes)
   Learner check: Add three logs across two methods, edit one amount, and confirm balances match your own arithmetic.
   Commit: `Add expenses and daily logs with calculated balances`
 
-- [ ] **3. Day-close gate blocks mismatches (the kernel)**
+- [x] **3. Day-close gate blocks mismatches (the kernel)**
   Becomes usable: Close day shows calculated balance per method and total; typing real balances that differ is blocked with a red per-method difference; matching closes the day and Home resets to the next day.
   Why now: This is the unique kernel; it comes right after logs so feedback on it can shape everything else.
   PRD ref: `prd.md > Day-Close Reconciliation`, `prd.md > The Core Journey` (steps 7–9)

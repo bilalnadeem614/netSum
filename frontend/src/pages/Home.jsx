@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api.js'
 import AddLog from './AddLog.jsx'
+import CloseDay from './CloseDay.jsx'
 
 export default function Home() {
   const [home, setHome] = useState(null)
   const [error, setError] = useState('')
   const [form, setForm] = useState(null) // null = hidden, {} = add, log = edit
+  const [closing, setClosing] = useState(false)
 
   const load = () => api('/home').then(setHome).catch((e) => setError(e.message))
   useEffect(() => { load() }, [])
@@ -15,6 +17,7 @@ export default function Home() {
 
   if (error) return <p className="banner">{error}</p>
   if (!home) return <p className="muted">Loading…</p>
+  if (closing) return <CloseDay onBack={() => setClosing(false)} onClosed={() => { setClosing(false); load() }} />
 
   const method = (id) => home.balances.find((b) => b.id === id)?.name
 
@@ -32,7 +35,10 @@ export default function Home() {
       {form ? (
         <AddLog home={home} log={form.id ? form : null} onSaved={saved} onCancel={() => setForm(null)} />
       ) : (
-        <button onClick={() => setForm({})}>Add log</button>
+        <>
+          <button onClick={() => setForm({})}>Add log</button>
+          <button className="ghost" onClick={() => setClosing(true)}>Close day</button>
+        </>
       )}
       <h2 className="gap">Today</h2>
       {!home.logs.length && <p className="muted">No logs yet.</p>}

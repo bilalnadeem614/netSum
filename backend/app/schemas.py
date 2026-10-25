@@ -21,3 +21,7 @@ class LogIn(BaseModel):
     expense_id: int
     amount: Decimal = Field(gt=0)
     description: str | None = None
+
+
+class CloseIn(BaseModel):
+    real: dict[int, Decimal]

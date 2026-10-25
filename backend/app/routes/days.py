@@ -1,9 +1,10 @@
 from decimal import Decimal
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from .. import balances
 from ..db import db
+from ..schemas import CloseIn
 
 router = APIRouter()
 
@@ -12,8 +13,7 @@ router = APIRouter()
 def home():
     day = balances.open_day()
     logs = balances.day_logs(day)
-    opening = {m["id"]: m["opening_balance"] for m in balances.methods()}
-    calc = balances.calculated(opening, logs)
+    calc = balances.calculated_balances(day)
     return {
         "day": day,
         "balances": [
@@ -30,3 +30,30 @@ def home():
         ],
         "expenses": db().table("expenses").select("*").order("id").execute().data,
     }
+
+
+@router.get("/close-preview")
+def close_preview():
+    calc = balances.calculated_balances(balances.open_day())
+    return {
+        "day": balances.open_day(),
+        "methods": [
+            {"id": m["id"], "name": m["name"], "calculated": f"{calc[m['id']]:.2f}"}
+            for m in balances.methods()
+        ],
+        "total": f"{sum(calc.values()):.2f}",
+    }
+
+
+@router.post("/close-day")
+def close_day(body: CloseIn):
+    day = balances.open_day()
+    calc = balances.calculated_balances(day)
+    if set(body.real) != set(calc):
+        raise HTTPException(422, "enter a real balance for every method")
+    diff = balances.differences(calc, body.real)
+    if diff:
+        raise HTTPException(409, {"differences": {m: f"{d:.2f}" for m, d in diff.items()}})
+    closing = {str(m): {"calculated": f"{calc[m]:.2f}", "real": f"{body.real[m]:.2f}"} for m in calc}
+    db().table("days").insert({"day": day, "closing": closing}).execute()
+    return {"closed": day}

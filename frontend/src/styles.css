@@ -35,3 +35,7 @@ select {
 .num.sm { font-size: 1rem; }
 .log { border-bottom: 1px solid var(--line); padding-bottom: 8px; }
 .log button { margin: 0; padding: 6px 10px; }
+.red { color: var(--red); }
+.close { flex-wrap: wrap; }
+.close.bad input { border-color: var(--red); }
+.close small { display: block; }
