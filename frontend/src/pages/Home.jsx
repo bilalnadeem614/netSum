@@ -5,6 +5,7 @@ import CloseDay from './CloseDay.jsx'
 import History from './History.jsx'
 import Loans from './Loans.jsx'
 import Savings from './Savings.jsx'
+import Charts from './Charts.jsx'
 
 export default function Home() {
   const [home, setHome] = useState(null)
@@ -24,6 +25,7 @@ export default function Home() {
   if (view === 'history') return <History onBack={back} />
   if (view === 'loans') return <Loans onBack={back} />
   if (view === 'savings') return <Savings onBack={back} />
+  if (view === 'charts') return <Charts onBack={back} />
   if (view === 'close') return <CloseDay onBack={back} onClosed={back} />
 
   const method = (id) => home.balances.find((b) => b.id === id)?.name
@@ -56,6 +58,7 @@ export default function Home() {
           <button className="ghost" onClick={() => setView('history')}>History</button>
           <button className="ghost" onClick={() => setView('loans')}>Loans</button>
           <button className="ghost" onClick={() => setView('savings')}>Savings</button>
+          <button className="ghost" onClick={() => setView('charts')}>Charts</button>
         </>
       )}
       <h2 className="gap">Today</h2>

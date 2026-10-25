@@ -69,7 +69,7 @@ Build mode: fast (no commits by Claude; learner commits and pushes)
   Learner check: Set a goal and threshold, log a non-essential spend over it, and confirm Home shows you went over.
   Commit: `Add saving goal and daily threshold`
 
-- [ ] **7. Spend charts and PWA install**
+- [x] **7. Spend charts and PWA install**
   Becomes usable: Charts page shows spend by expense and by method; the app is installable as a PWA and shows a "Can't reach server" banner when the backend is down.
   Why now: Read-only reporting and shell polish need real data from earlier slices.
   PRD ref: `prd.md > Charts of Usage`, `prd.md > Look and Feel`
