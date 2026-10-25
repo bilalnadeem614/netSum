@@ -49,7 +49,7 @@ Build mode: fast (no commits by Claude; learner commits and pushes)
   Learner check: Close two days, open History, tap each, and confirm day 2's opening equals day 1's real closing.
   Commit: `Add history of closed days`
 
-- [ ] **5. Loans and savings with progress charts**
+- [x] **5. Loans and savings with progress charts**
   Becomes usable: Enter loans and savings (onboarding step and own screens); logging a loan payment or saving deposit uses a method (and passes the gate); charts show loan remaining shrinking and savings growing.
   Why now: Reuses the log path from slice 2; adds the remaining onboarding step so the full core journey is complete.
   PRD ref: `prd.md > Loans`, `prd.md > Savings and Saving Goals`, `prd.md > The Core Journey` (step 4)

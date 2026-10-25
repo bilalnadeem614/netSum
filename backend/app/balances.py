@@ -44,9 +44,39 @@ def differences(calc, real):
 
 
 def day_logs(day):
-    return db().table("logs").select("*, expenses(name)").eq("day", day).order("id").execute().data
+    return db().table("logs").select("*, expenses(name), loans(name), savings(name)").eq("day", day).order("id").execute().data
 
 
 def calculated_balances(day):
     last = last_closed()
     return calculated(opening(methods(), last and last["closing"]), day_logs(day))
+
+
+def loans_with_remaining():
+    paid = {}
+    for l in db().table("logs").select("loan_id, amount").not_.is_("loan_id", "null").execute().data:
+        paid[l["loan_id"]] = paid.get(l["loan_id"], Decimal(0)) + Decimal(str(l["amount"]))
+    out = []
+    for loan in db().table("loans").select("*").order("id").execute().data:
+        p = paid.get(loan["id"], Decimal(0))
+        out.append({**loan, "total": f"{Decimal(str(loan['total'])):.2f}", "paid": f"{p:.2f}",
+                    "remaining": f"{Decimal(str(loan['total'])) - p:.2f}"})
+    return out
+
+
+def savings_with_totals():
+    by_saving = {}
+    for l in db().table("logs").select("saving_id, day, amount").not_.is_("saving_id", "null").order("day").execute().data:
+        by_saving.setdefault(l["saving_id"], []).append(l)
+    out = []
+    for sv in db().table("savings").select("*").order("id").execute().data:
+        total = Decimal(str(sv["starting_amount"]))
+        series = [{"day": "start", "total": f"{total:.2f}"}]
+        for l in by_saving.get(sv["id"], []):
+            total += Decimal(str(l["amount"]))
+            if series[-1]["day"] == l["day"]:
+                series[-1]["total"] = f"{total:.2f}"
+            else:
+                series.append({"day": l["day"], "total": f"{total:.2f}"})
+        out.append({**sv, "starting_amount": f"{Decimal(str(sv['starting_amount'])):.2f}", "total": f"{total:.2f}", "series": series})
+    return out

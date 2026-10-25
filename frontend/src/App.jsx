@@ -3,6 +3,7 @@ import { api } from './api.js'
 import Welcome from './pages/onboarding/Welcome.jsx'
 import Methods from './pages/onboarding/Methods.jsx'
 import Expenses from './pages/onboarding/Expenses.jsx'
+import LoansSavings from './pages/onboarding/LoansSavings.jsx'
 import Home from './pages/Home.jsx'
 
 export default function App() {
@@ -21,7 +22,8 @@ export default function App() {
       {screen === 'loading' && !error && <p className="muted">Loading…</p>}
       {screen === 'welcome' && <Welcome onNext={() => setScreen('methods')} />}
       {screen === 'methods' && <Methods onDone={() => setScreen('expenses')} />}
-      {screen === 'expenses' && <Expenses onDone={() => setScreen('home')} />}
+      {screen === 'expenses' && <Expenses onDone={() => setScreen('loanssavings')} />}
+      {screen === 'loanssavings' && <LoansSavings onDone={() => setScreen('home')} />}
       {screen === 'home' && <Home />}
     </main>
   )

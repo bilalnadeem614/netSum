@@ -12,7 +12,9 @@ router = APIRouter()
 def _log_out(l):
     return {
         "id": l["id"], "method_id": l["method_id"], "expense_id": l["expense_id"],
-        "expense": l["expenses"]["name"] if l["expenses"] else None,
+        "loan_id": l["loan_id"], "saving_id": l["saving_id"],
+        "expense": (l["expenses"] or l["loans"] or l["savings"])["name"],
+        "kind": "expense" if l["expense_id"] else "loan" if l["loan_id"] else "saving",
         "amount": f"{Decimal(str(l['amount'])):.2f}", "description": l["description"],
     }
 
@@ -30,6 +32,8 @@ def home():
         ],
         "logs": [_log_out(l) for l in logs],
         "expenses": db().table("expenses").select("*").order("id").execute().data,
+        "loans": balances.loans_with_remaining(),
+        "savings": balances.savings_with_totals(),
     }
 
 

@@ -39,3 +39,4 @@ select {
 .close { flex-wrap: wrap; }
 .close.bad input { border-color: var(--red); }
 .close small { display: block; }
+.chart { height: 180px; margin: 8px 0 16px; font-size: 12px; }
