@@ -9,7 +9,7 @@ Build mode: fast (commit locally only; learner pushes)
 
 ## Slices
 
-- [ ] **1. Set up payment methods and see balances on Home**
+- [x] **1. Set up payment methods and see balances on Home**
   Becomes usable: Open the app, go Welcome → Payment Methods (Cash and Account fixed, + for more) → Home, which shows each method's opening balance. Data is in Supabase and survives reload.
   Why now: Proves the whole path (React → FastAPI → Supabase) and the riskiest unknowns (Supabase connection, API key, CORS) on the first slice. Every later slice lands on this.
   PRD ref: `prd.md > The Core Journey` (steps 1, 2, 5), `prd.md > Onboarding`

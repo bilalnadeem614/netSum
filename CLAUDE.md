@@ -10,12 +10,12 @@ Plans: `devpost/scope.md`, `devpost/prd.md`, `devpost/spec.md`. Build progress: 
 
 ## Python environment
 - Conda env `netsum` (Python 3.11). Never use base or system pip.
-- Activate: `conda activate netsum`. One-off: `conda run -n netsum <cmd>`.
+- Activate: `conda activate netsum`. In scripts call `~/miniconda3/envs/netsum/bin/python -m ...` (`conda run` fell back to base python).
 - All Python libraries go in `backend/requirements.txt`; install new ones into `netsum` and add them there.
 
 ## Commands
-- Backend: `cd backend && conda run -n netsum uvicorn app.main:app --reload`
-- Tests: `cd backend && conda run -n netsum pytest`
+- Backend: `cd backend && ~/miniconda3/envs/netsum/bin/python -m uvicorn app.main:app --reload`
+- Tests: `cd backend && ~/miniconda3/envs/netsum/bin/python -m pytest`
 - Frontend: `cd frontend && npm run dev`
 
 ## Rules

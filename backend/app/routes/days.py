@@ -16,7 +16,7 @@ def home():
     return {
         "day": day,
         "balances": [
-            {"id": m["id"], "name": m["name"], "kind": m["kind"], "balance": calc[m["id"]]}
+            {"id": m["id"], "name": m["name"], "kind": m["kind"], "balance": str(calc[m["id"]])}
             for m in balances.methods()
         ],
         "logs": [],
