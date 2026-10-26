@@ -11,7 +11,7 @@ Each payment method (cash, bank account, a metro card…) has its own balance. Y
 ## Features
 
 - **Onboarding:** opening balances for Cash, Account and any extra methods; a menu of expenses (daily or monthly, essential or not); optional loans and savings.
-- **Daily logs:** pick an expense, loan or saving, an amount and the method it was paid from. Edit or delete while the day is open.
+- **Daily logs:** three kinds. **Spend** (an expense, loan payment or saving deposit, paid from a method), **Income** (salary or money paid back, with its source, added to a method) and **Transfer** (move money between your own methods, such as an ATM withdrawal). Edit or delete while the day is open.
 - **Day-close gate:** blocks on any mismatch, shows the difference in red, and saves the day only when every method matches.
 - **History:** closed days as read-only statements with their logs and closing balances. Each day opens at the previous day's real balance.
 - **Loans and savings:** payments and deposits are normal logs, charted as remaining and growth.
@@ -34,7 +34,7 @@ Balances are never stored; they are calculated from logs. Money is `Decimal` in 
 
 Requirements: Python 3.11+, Node 20+, a free Supabase project.
 
-1. In the Supabase SQL editor, run `backend/schema.sql` once.
+1. In the Supabase SQL editor, run `backend/schema.sql` once. If your database already exists from before income and transfers, run `backend/migrations/002_income_transfer.sql` instead.
 2. Backend:
    ```
    conda create -n netsum python=3.11 && conda activate netsum
@@ -56,6 +56,7 @@ To try it on a phone on the same network, set `VITE_API_URL` to your computer's 
 
 ## Deploy
 
+- **Order matters on an existing database:** run any new file from `backend/migrations/` in Supabase first, then deploy the backend.
 - **Backend (Render web service, root `backend`):** build `pip install -r requirements.txt`, start `uvicorn app.main:app --host 0.0.0.0 --port $PORT`. Environment: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `ALLOWED_ORIGIN` (the frontend URL, no trailing slash), `PYTHON_VERSION=3.11.17`.
 - **Frontend (Vercel, root `frontend`):** environment `VITE_API_URL` set to the Render URL, with no `/api` on the end.
 

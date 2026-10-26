@@ -57,7 +57,10 @@ Source: `scope.md > The Core Loop` step 1.
 - As the owner, I want to log a spend in a few taps so that logging stays easy.
   - [ ] Add log shows: expense (chosen from the predefined list), amount, payment method, optional description.
   - [ ] After save, the log appears in today's list and the chosen method's balance drops by the amount.
-  - [ ] Logs can be edited.
+  - [ ] Logs can be edited, in a pop-up showing only the fields for that log's kind (spend, income or transfer).
+  - [ ] Income (salary, money paid back) is logged with a source and the method that received it, and adds to that method's balance. Income can only go to Cash or Account, not to extra methods such as a metro card.
+  - [ ] A transfer between two of the person's methods (ATM withdrawal, metro card top-up) moves money from one to the other; the total does not change.
+  - [ ] Income and transfers count in the calculated balance, so receiving money never causes a false mismatch at close.
   - [ ] If a day was missed, person can pick an older date, add that day's logs, and close it. Days close in order, so each day's opening balance is the previous day's closed real balance.
 
 ### Day-Close Reconciliation (the kernel)
@@ -104,7 +107,7 @@ Source: `scope.md > The Unique Kernel`.
 - Closed days must be viewable like account statements.
 
 ## What We're Building
-Onboarding, methods, predefined expenses, daily logs, day-close gate, History of closed days, charts of usage, savings with goals and daily threshold, loans with chart.
+Onboarding, methods, predefined expenses, daily logs (spend, income, transfer), day-close gate, History of closed days, charts of usage, savings with goals and daily threshold, loans with chart.
 
 ## Deferred From the POC
 - Reminders ("I must pay X", "X must return my money") — not in the learner's POC list; revisit after the core works.

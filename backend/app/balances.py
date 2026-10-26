@@ -49,10 +49,17 @@ def opening(method_rows, closing):
 
 
 def calculated(opening_bal, logs):
-    """method_id -> opening balance minus that method's logs. Pure."""
+    """method_id -> opening balance after the day's logs. Pure.
+    spend subtracts, income adds, transfer moves money from one method to another."""
     out = {m: Decimal(str(v)) for m, v in opening_bal.items()}
     for log in logs:
-        out[log["method_id"]] -= Decimal(str(log["amount"]))
+        amt, kind = Decimal(str(log["amount"])), log.get("kind", "spend")
+        if kind == "income":
+            out[log["method_id"]] += amt
+        else:
+            out[log["method_id"]] -= amt
+            if kind == "transfer":
+                out[log["to_method_id"]] += amt
     return out
 
 

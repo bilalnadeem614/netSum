@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api.js'
 import Loading from '../components/Loading.jsx'
+import Modal from '../components/Modal.jsx'
 import AddLog from './AddLog.jsx'
 import CloseDay from './CloseDay.jsx'
 import History from './History.jsx'
@@ -64,8 +65,14 @@ export default function Home() {
 const Pencil = svg(<><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" /></>)
 const Bin = svg(<><path d="M3 6h18" /><path d="M8 6V4h8v2" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6M14 11v6" /></>)
 
+// ledger row helpers: spend is −, income is +, a transfer is neutral
+const money = (l) => (l.type === 'income' ? `+${l.amount}` : l.type === 'transfer' ? l.amount : `−${l.amount}`)
+const sub = (l) =>
+  l.type === 'income' ? `Received in ${l.method}`
+  : l.type === 'transfer' ? `${l.method} → ${l.to_method}${l.description ? ` · ${l.description}` : ''}`
+  : `${l.method}${l.description ? ` · ${l.description}` : ''}`
+
 function Today({ home, form, setForm, saved, remove, onClose }) {
-  const method = (id) => home.balances.find((b) => b.id === id)?.name
   const catchingUp = home.day < new Date().toLocaleDateString('en-CA')
   const over = home.goal && +home.non_essential_spent > +home.goal.daily_threshold
 
@@ -97,13 +104,18 @@ function Today({ home, form, setForm, saved, remove, onClose }) {
         </p>
       )}
 
-      {form ? (
-        <AddLog home={home} log={form.id ? form : null} onSaved={saved} onCancel={() => setForm(null)} />
+      {form && !form.id ? (
+        <AddLog home={home} log={null} onSaved={saved} onCancel={() => setForm(null)} />
       ) : (
         <div className="actions">
           <button onClick={() => setForm({})}>Add log</button>
           <button className="secondary" onClick={onClose}>Close day</button>
         </div>
+      )}
+      {form?.id && (
+        <Modal title={`Edit ${form.type}`} onClose={() => setForm(null)}>
+          <AddLog home={home} log={form} onSaved={saved} onCancel={() => setForm(null)} />
+        </Modal>
       )}
 
       <h2 className="label">Today</h2>
@@ -113,10 +125,10 @@ function Today({ home, form, setForm, saved, remove, onClose }) {
           <div className="line" key={l.id}>
             <div className="grow">
               {l.expense}
-              <small>{method(l.method_id)}{l.description && ` · ${l.description}`}</small>
+              <small>{sub(l)}</small>
             </div>
             <div className="end">
-              <span className="amt">−{l.amount}</span>
+              <span className={`amt ${l.type === 'income' ? 'green' : ''}`}>{money(l)}</span>
               <div className="icons">
                 <button className="icon" aria-label={`Edit ${l.expense}`} onClick={() => setForm(l)}>{Pencil}</button>
                 <button className="icon danger" aria-label={`Delete ${l.expense}`} onClick={() => remove(l.id)}>{Bin}</button>

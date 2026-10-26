@@ -64,6 +64,8 @@ PRD ref: `prd.md > Look and Feel`.
 - Plain CSS with CSS variables in `frontend/src/styles.css`; no UI kit, so the look stays deliberate.
 - **Themes:** dark is the default look; a light "paper" theme is available from a sun/moon icon in the header. The first visit follows the system setting and the choice is remembered in the browser. Charts read the same CSS variables.
 - **Navigation:** a bottom tab bar with icons (Home, History, Charts, Savings, Loans).
+- **Edit:** tapping a log's pencil icon opens a modal (`frontend/src/components/Modal.jsx`; a bottom sheet on phones, centered on desktop) with only the fields for that log's kind, so a spend, an income and a transfer each edit as themselves. Escape or tapping outside closes it. Add log stays inline on Home.
+- **Dropdowns:** a themed `Select` component (`frontend/src/components/Select.jsx`) replaces the native `<select>`, whose popup cannot follow the theme. It supports keyboard use (arrows, Enter, Escape).
 - **Statement style:** Home shows a large total, ruled rows per method and a ledger of today's logs with pencil and bin icons; amounts use monospace tabular figures.
 - **Loading:** skeleton placeholders shaped like each screen. After 5 seconds they add a "Waking the server" note for the Render cold start.
 - Copy is short and factual ("Difference: -250").
@@ -72,7 +74,7 @@ PRD ref: `prd.md > Look and Feel`.
 ## Components
 
 ### Backend: Balance Engine
-Pure functions: `opening(...)`, `calculated(...)`, `differences(...)` in `balances.py`; the route code fetches rows and passes them in. Independent Supabase reads run concurrently (`par`), and `db.py` gives each thread its own client. Opening = latest closed day's real balance per method, or the method's onboarding balance if none. Calculated = opening − sum of that day's logs for the method. Methods have no negative-balance rule.
+Pure functions: `opening(...)`, `calculated(...)`, `differences(...)` in `balances.py`; the route code fetches rows and passes them in. Independent Supabase reads run concurrently (`par`), and `db.py` gives each thread its own client. Opening = latest closed day's real balance per method, or the method's onboarding balance if none. Calculated = opening, minus the day's spends, plus its income, with transfers moving money between two methods. Methods have no negative-balance rule.
 PRD ref: `prd.md > Daily Logs`, `prd.md > History` (next day's opening = previous real).
 
 ### Backend: Day-Close Gate
@@ -80,7 +82,7 @@ PRD ref: `prd.md > Daily Logs`, `prd.md > History` (next day's opening = previou
 PRD ref: `prd.md > Day-Close Reconciliation`.
 
 ### Backend: CRUD Routes
-Methods, expenses, logs (create, edit, delete — open day only), loans, savings, goal. Edit or delete of a log in a closed day returns `403`.
+Methods, expenses, logs of any kind — spend, income, transfer (create, edit, delete — open day only), loans, savings, goal. `LogIn` in `schemas.py` validates the shape for each kind. Edit or delete of a log in a closed day returns `403`.
 PRD ref: `prd.md > Onboarding`, `prd.md > Daily Logs`, `prd.md > Loans`, `prd.md > Savings and Saving Goals`.
 
 ### Backend: Reports
@@ -92,7 +94,7 @@ Welcome, Methods, Expenses, Loans and Savings screens, stepped. Shown only while
 PRD ref: `prd.md > Onboarding`, `prd.md > States and Boundaries` (First use).
 
 ### Frontend: Home and Add Log
-Total and per-method balances, today's log list with edit and delete icons, Add log form, Close day button, and the bottom tab bar. (The planned tap-the-strip → Settings screen was not built; see What Was Simplified.) If the open day is earlier than today, it shows a "Catching up: <date>" label.
+Total and per-method balances, today's log list with edit and delete icons (income in green with +, transfers shown as `From → To`), Add log form with a Spend / Income / Transfer switch, Close day button, and the bottom tab bar. (The planned tap-the-strip → Settings screen was not built; see What Was Simplified.) If the open day is earlier than today, it shows a "Catching up: <date>" label.
 PRD ref: `prd.md > Daily Logs`, `prd.md > Screens and Layout`.
 
 ### Frontend: Close Day
@@ -118,7 +120,7 @@ Money is `numeric(12,2)` in Postgres and `Decimal` in Python, never float; JSON 
 |---|---|---|
 | `payment_methods` | id, name, kind (`cash`/`account`/`custom`), opening_balance, created_at | Cash and Account created in onboarding; the rest user-added |
 | `expenses` | id, name, kind (`daily`/`monthly`), essential (bool) | A menu. Any entry can be picked any time. `essential` drives the non-essential daily threshold. |
-| `logs` | id, day (date), method_id, amount, description, expense_id / loan_id / saving_id (exactly one set, via CHECK) | A loan payment or saving deposit is a normal log that also names its loan or saving |
+| `logs` | id, day (date), kind (`spend`/`income`/`transfer`), method_id, to_method_id, amount, description, expense_id / loan_id / saving_id | `spend`: exactly one of expense/loan/saving is set (a loan payment or saving deposit is a spend that names its loan or saving). `income`: no target; `description` is the source (e.g. Salary); adds to `method_id`, which must be Cash or Account (the log route returns 422 for a `custom` method). `transfer`: no target; moves `amount` from `method_id` to `to_method_id` (a different method). A CHECK (`logs_shape`) enforces this. `backend/migrations/002_income_transfer.sql` upgrades an existing database. |
 | `loans` | id, name, total | Remaining = total − sum(logs for the loan) |
 | `savings` | id, name, starting_amount | Total = starting + sum(logs for the saving) |
 | `goal` | id (single row), purpose, goal_amount, daily_threshold | One goal in the PoC |
@@ -143,7 +145,8 @@ netSum/
 │   │   └── schemas.py       # Pydantic request/response models
 │   ├── tests/
 │   │   └── test_close_gate.py  # gate: match closes, mismatch blocks, opening chain
-│   ├── schema.sql           # run once in Supabase SQL editor
+│   ├── schema.sql           # run once in Supabase SQL editor (fresh install)
+│   ├── migrations/          # 002_income_transfer.sql for databases created before income/transfer
 │   ├── requirements.txt
 │   └── .env.example
 ├── frontend/
@@ -151,7 +154,7 @@ netSum/
 │   │   ├── main.jsx, App.jsx    # theme toggle and onboarding flow (no router; Home switches views by tab)
 │   │   ├── api.js               # fetch wrapper for the backend
 │   │   ├── styles.css           # dark theme variables and base styles
-│   │   ├── components/Loading.jsx  # skeleton loaders
+│   │   ├── components/Loading.jsx, Select.jsx, Modal.jsx  # skeleton loaders, themed dropdown, edit dialog
 │   │   └── pages/
 │   │       ├── onboarding/      # Welcome, Methods, Expenses, LoansSavings
 │   │       ├── Home.jsx, AddLog.jsx, CloseDay.jsx
@@ -189,6 +192,7 @@ No other services.
 - **Single goal** instead of multiple goals.
 - **Free-tier hosting, no custom domain, no CI** — push to deploy only.
 - **No Settings screen** — payment methods can only be set during onboarding; managing them later is a follow-up.
+- **Income has a free-text source** instead of a managed income list, and money borrowed (a loan received) is not modelled; both can come later.
 - **No router** — Home swaps views by tab with component state, which is enough for five screens.
 - **Reminders, networking, bill sharing, AI feature** stay deferred (`prd.md > Deferred From the POC`).
 
@@ -200,6 +204,7 @@ Learner decisions:
 - **Closed days are read-only.**
 - **Expenses are a menu** pickable at any time; no monthly pre-fill (an end-of-month internet bill is just picked when it arrives).
 - **Loan payments and savings deposits are normal logs** that reduce a payment method and so pass through the gate.
+- **Income and transfers are logs too** (added after the first build, when the gate blocked a salary that raised a real balance): income adds to one method, a transfer moves money between two, so both pass through the gate.
 
 Implementation details derived from these (not separate learner choices): the `days.closing` jsonb snapshot, the `essential` flag for the threshold, Recharts, plain-CSS theming, and the open-day rule.
 

@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { api } from '../api.js'
+import Select from '../components/Select.jsx'
+
+const KINDS = [['spend', 'Spend'], ['income', 'Income'], ['transfer', 'Transfer']]
 
 // log = existing log when editing, null when adding
 export default function AddLog({ home, log, onSaved, onCancel }) {
@@ -8,18 +11,29 @@ export default function AddLog({ home, log, onSaved, onCancel }) {
     ...home.loans.map((x) => ({ key: `loan_id:${x.id}`, label: `Loan: ${x.name}` })),
     ...home.savings.map((x) => ({ key: `saving_id:${x.id}`, label: `Saving: ${x.name}` })),
   ]
+  const ms = home.balances
+  const incomeMs = ms.filter((m) => m.kind !== 'custom') // income goes to Cash or Account only
+  const [kind, setKind] = useState(log?.type ?? 'spend')
   const [f, setF] = useState({
-    target: log ? targets.find((t) => t.key.endsWith(`:${log.expense_id ?? log.loan_id ?? log.saving_id}`) && t.key.startsWith(log.kind))?.key : targets[0]?.key,
+    target: log?.target
+      ? targets.find((t) => t.key === `${log.target}_id:${log[`${log.target}_id`]}`)?.key
+      : targets[0]?.key,
     amount: log?.amount ?? '',
-    method_id: log?.method_id ?? home.balances[0]?.id,
-    description: log?.description ?? '',
+    method_id: log?.method_id ?? ms[0]?.id,
+    to_method_id: log?.to_method_id ?? ms[1]?.id ?? ms[0]?.id,
+    // income keeps its source in the title (`expense`); spend and transfer keep a note
+    description: (log?.type === 'income' ? log.expense : log?.description) ?? '',
   })
   const [error, setError] = useState('')
   const set = (patch) => setF({ ...f, ...patch })
 
   async function save() {
-    const [field, id] = f.target.split(':')
-    const body = { method_id: +f.method_id, amount: f.amount, description: f.description || null, [field]: +id }
+    const body = { kind, method_id: +f.method_id, amount: f.amount, description: f.description.trim() || null }
+    if (kind === 'spend') {
+      const [field, id] = f.target.split(':')
+      body[field] = +id
+    }
+    if (kind === 'transfer') body.to_method_id = +f.to_method_id
     try {
       await (log ? api(`/logs/${log.id}`, body, 'PUT') : api('/logs', body))
       onSaved()
@@ -28,30 +42,65 @@ export default function AddLog({ home, log, onSaved, onCancel }) {
     }
   }
 
+  const methodSelect = (label, key, list = ms) => (
+    <div className="field"><span>{label}</span>
+      <Select label={label} value={f[key]} onChange={(v) => set({ [key]: v })} options={list.map((x) => ({ value: x.id, label: x.name }))} />
+    </div>
+  )
+  const amount = (
+    <label className="field"><span>Amount</span>
+      <input className="mono" type="number" step="0.01" inputMode="decimal" placeholder="0.00" value={f.amount} onChange={(e) => set({ amount: e.target.value })} />
+    </label>
+  )
+  const note = (label) => (
+    <label className="field"><span>{label}</span>
+      <input value={f.description} onChange={(e) => set({ description: e.target.value })} />
+    </label>
+  )
+
+  const ready = +f.amount > 0 && (
+    kind === 'spend' ? !!f.target
+    : kind === 'income' ? !!f.description.trim()
+    : +f.method_id !== +f.to_method_id
+  )
+
   return (
     <div className="sheet">
-      <h2>{log ? 'Edit log' : 'Add log'}</h2>
-      <label className="field"><span>What for</span>
-        <select value={f.target} onChange={(e) => set({ target: e.target.value })}>
-          {targets.map((x) => <option key={x.key} value={x.key}>{x.label}</option>)}
-        </select>
-      </label>
-      <div className="grid2">
-        <label className="field"><span>Paid from</span>
-          <select value={f.method_id} onChange={(e) => set({ method_id: e.target.value })}>
-            {home.balances.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
-          </select>
-        </label>
-        <label className="field"><span>Amount</span>
-          <input className="mono" type="number" step="0.01" inputMode="decimal" placeholder="0.00" value={f.amount} onChange={(e) => set({ amount: e.target.value })} />
-        </label>
-      </div>
-      <label className="field"><span>Note (optional)</span>
-        <input value={f.description} onChange={(e) => set({ description: e.target.value })} />
-      </label>
+      <h2>{log ? `Edit ${kind}` : 'Add log'}</h2>
+      {!log && <div className="seg" role="tablist">
+        {KINDS.map(([k, label]) => (
+          <button key={k} role="tab" aria-selected={kind === k} className={kind === k ? 'on' : ''} onClick={() => { setKind(k); setError(''); if (k === 'income' && !incomeMs.some((m) => m.id === +f.method_id)) set({ method_id: incomeMs[0]?.id }) }}>
+            {label}
+          </button>
+        ))}
+      </div>}
+
+      {kind === 'spend' && (
+        <>
+          <div className="field"><span>What for</span>
+            <Select label="What for" value={f.target} onChange={(target) => set({ target })} options={targets.map((x) => ({ value: x.key, label: x.label }))} />
+          </div>
+          <div className="grid2">{methodSelect('Paid from', 'method_id')}{amount}</div>
+          {note('Note (optional)')}
+        </>
+      )}
+      {kind === 'income' && (
+        <>
+          {note('Source (e.g. Salary)')}
+          <div className="grid2">{methodSelect('Received in', 'method_id', incomeMs)}{amount}</div>
+        </>
+      )}
+      {kind === 'transfer' && (
+        <>
+          <div className="grid2">{methodSelect('From', 'method_id')}{methodSelect('To', 'to_method_id')}</div>
+          {amount}
+          {note('Note (optional)')}
+        </>
+      )}
+
       {error && <p className="banner">{error}</p>}
       <div className="actions">
-        <button disabled={!(+f.amount > 0) || !f.target} onClick={save}>Save</button>
+        <button disabled={!ready} onClick={save}>Save</button>
         <button className="secondary" onClick={onCancel}>Cancel</button>
       </div>
     </div>

@@ -31,8 +31,18 @@ export default function History() {
         <div className="rows">
           {detail.logs.map((l) => (
             <div className="line" key={l.id}>
-              <div className="grow">{l.expense}<small>{l.description}</small></div>
-              <span className="amt">−{l.amount}</span>
+              <div className="grow">
+                {l.expense}
+                <small>
+                  {l.type === 'income' ? `Received in ${l.method}`
+                    : l.type === 'transfer' ? `${l.method} → ${l.to_method}`
+                    : l.method}
+                  {l.description && ` · ${l.description}`}
+                </small>
+              </div>
+              <span className={`amt ${l.type === 'income' ? 'green' : ''}`}>
+                {l.type === 'income' ? '+' : l.type === 'transfer' ? '' : '−'}{l.amount}
+              </span>
             </div>
           ))}
         </div>

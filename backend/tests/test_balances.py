@@ -27,3 +27,15 @@ def test_non_essential_spend_counts_only_flagged_expenses():
         {"amount": "10", "expenses": None},
     ]
     assert non_essential_spend(logs) == Decimal("60")
+
+
+def test_income_adds_to_its_method():
+    logs = [{"kind": "income", "method_id": 2, "amount": "5000"}]
+    assert calculated({1: "100", 2: "250"}, logs) == {1: Decimal("100"), 2: Decimal("5250")}
+
+
+def test_transfer_moves_money_and_keeps_the_total():
+    logs = [{"kind": "transfer", "method_id": 2, "to_method_id": 1, "amount": "300"}]
+    out = calculated({1: "100", 2: "1000"}, logs)
+    assert out == {1: Decimal("400"), 2: Decimal("700")}
+    assert sum(out.values()) == Decimal("1100")

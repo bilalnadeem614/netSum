@@ -41,13 +41,20 @@ create table goal (
 create table logs (
   id bigserial primary key,
   day date not null,
+  kind text not null default 'spend' check (kind in ('spend', 'income', 'transfer')),
   method_id bigint not null references payment_methods(id),
+  to_method_id bigint references payment_methods(id),
   amount numeric(12,2) not null check (amount > 0),
   description text,
   expense_id bigint references expenses(id),
   loan_id bigint references loans(id),
   saving_id bigint references savings(id),
-  check (num_nonnulls(expense_id, loan_id, saving_id) = 1)
+  constraint logs_shape check (
+    (kind = 'spend'    and num_nonnulls(expense_id, loan_id, saving_id) = 1 and to_method_id is null) or
+    (kind = 'income'   and num_nonnulls(expense_id, loan_id, saving_id) = 0 and to_method_id is null) or
+    (kind = 'transfer' and num_nonnulls(expense_id, loan_id, saving_id) = 0
+                       and to_method_id is not null and to_method_id <> method_id)
+  )
 );
 
 create table days (

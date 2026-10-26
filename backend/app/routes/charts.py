@@ -21,7 +21,7 @@ def spend_totals(logs):
 @router.get("/charts/spend")
 def spend():
     logs = (
-        db().table("logs").select("amount, expenses(name), payment_methods(name)")
+        db().table("logs").select("amount, expenses(name), payment_methods!method_id(name)")
         .not_.is_("expense_id", "null").execute().data
     )
     return spend_totals(logs)

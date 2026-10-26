@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { api } from '../../api.js'
+import Select from '../../components/Select.jsx'
 
 const blank = { name: '', kind: 'daily', essential: true }
 
@@ -30,13 +31,10 @@ export default function Expenses({ onDone }) {
             <input value={r.name} placeholder="e.g. Lunch" onChange={(e) => set(i, { name: e.target.value })} />
           </label>
           <div className="grid2">
-            <label className="field">
+            <div className="field">
               <span>Type</span>
-              <select value={r.kind} onChange={(e) => set(i, { kind: e.target.value })}>
-                <option value="daily">Daily</option>
-                <option value="monthly">Monthly</option>
-              </select>
-            </label>
+              <Select label="Type" value={r.kind} onChange={(kind) => set(i, { kind })} options={[{ value: 'daily', label: 'Daily' }, { value: 'monthly', label: 'Monthly' }]} />
+            </div>
             <label className="check">
               <input type="checkbox" checked={r.essential} onChange={(e) => set(i, { essential: e.target.checked })} />
               Essential

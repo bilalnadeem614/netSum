@@ -145,3 +145,50 @@ button.icon.danger:hover { color: var(--danger); border-color: var(--danger); }
 }
 @keyframes shimmer { to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
+
+/* spend / income / transfer switch */
+.seg { display: flex; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; margin-bottom: 14px; }
+.seg button {
+  flex: 1; min-height: 38px; border: 0; border-radius: 0; background: transparent; color: var(--muted); font-weight: 500;
+}
+.seg button.on { background: var(--accent); color: var(--accent-ink); }
+.seg button + button { border-left: 1px solid var(--line); }
+
+/* themed dropdown */
+.sel { position: relative; }
+.sel-btn {
+  width: 100%; min-height: 44px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font: inherit; font-weight: 400; text-align: left; color: var(--text);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 5px;
+}
+.sel-btn svg { color: var(--muted); flex: none; }
+.sel-btn[aria-expanded='true'] { border-color: var(--accent); }
+.sel-menu {
+  position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px; max-height: 240px; overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+}
+.sel-menu li { padding: 10px 10px; border-radius: 4px; cursor: pointer; }
+.sel-menu li.act { background: var(--chip); }
+.sel-menu li.on { color: var(--accent); font-weight: 600; }
+.sel-menu { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* modal */
+.modal {
+  position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(0, 0, 0, .55); overflow-y: auto; padding: 0;
+}
+.modal-panel {
+  width: 100%; max-width: 480px; background: var(--bg); border: 1px solid var(--line);
+  border-radius: 12px 12px 0 0; padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+  animation: rise .18s ease-out;
+}
+.modal .sheet { border: 0; background: none; padding: 0; margin: 0; }
+@keyframes rise { from { transform: translateY(24px); opacity: 0; } }
+@media (min-width: 600px) {
+  .modal { align-items: center; padding: 24px; }
+  .modal-panel { border-radius: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .modal-panel { animation: none; } }

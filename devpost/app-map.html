@@ -46,7 +46,7 @@
   <ol>
     <li><code>frontend/src/pages/CloseDay.jsx</code>, search <code>async function close</code>: posts the typed real balances to <code>/close-day</code>, and on a <code>409</code> stores the per-method differences (<code>setDiff</code>) so those rows turn red.</li>
     <li><code>backend/app/routes/days.py</code>, search <code>def close_day</code>: loads the open day, calculates balances, calls <code>balances.differences</code>. Any difference raises <code>HTTPException(409, ...)</code> and nothing is written. If all match, it inserts one row into <code>days</code>.</li>
-    <li><code>backend/app/balances.py</code>, search <code>def differences</code>: compares real and calculated with exact <code>Decimal</code> values. <code>def calculated</code> and <code>def opening</code> above it build the calculated balance from the previous closed day plus the day's logs.</li>
+    <li><code>backend/app/balances.py</code>, search <code>def differences</code>: compares real and calculated with exact <code>Decimal</code> values. <code>def calculated</code> and <code>def opening</code> above it build the calculated balance from the previous closed day plus the day's logs (spends subtract, income adds, a transfer moves money between two methods).</li>
   </ol>
 
   <h2>To change this, start here</h2>

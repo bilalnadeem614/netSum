@@ -9,13 +9,20 @@ from ..schemas import CloseIn
 router = APIRouter()
 
 
-def _log_out(l):
+def _log_out(l, names):
+    """One log for the UI. `expense` is the row title; `target` is what a spend was for."""
+    kind = l["kind"]
+    target = None if kind != "spend" else "expense" if l["expense_id"] else "loan" if l["loan_id"] else "saving"
+    title = (l["expenses"] or l["loans"] or l["savings"])["name"] if kind == "spend" else (
+        l["description"] if kind == "income" else "Transfer")
     return {
-        "id": l["id"], "method_id": l["method_id"], "expense_id": l["expense_id"],
-        "loan_id": l["loan_id"], "saving_id": l["saving_id"],
-        "expense": (l["expenses"] or l["loans"] or l["savings"])["name"],
-        "kind": "expense" if l["expense_id"] else "loan" if l["loan_id"] else "saving",
-        "amount": f"{Decimal(str(l['amount'])):.2f}", "description": l["description"],
+        "id": l["id"], "type": kind, "target": target,
+        "method_id": l["method_id"], "method": names.get(l["method_id"]),
+        "to_method_id": l["to_method_id"], "to_method": names.get(l["to_method_id"]),
+        "expense_id": l["expense_id"], "loan_id": l["loan_id"], "saving_id": l["saving_id"],
+        "expense": title,
+        "amount": f"{Decimal(str(l['amount'])):.2f}",
+        "description": l["description"] if kind != "income" else None,
     }
 
 
@@ -36,7 +43,7 @@ def home():
             {"id": m["id"], "name": m["name"], "kind": m["kind"], "balance": f"{calc[m['id']]:.2f}"}
             for m in ms
         ],
-        "logs": [_log_out(l) for l in logs],
+        "logs": [_log_out(l, {m["id"]: m["name"] for m in ms}) for l in logs],
         "expenses": expenses,
         "goal": balances.goal_progress(goal, sv),
         "non_essential_spent": f"{balances.non_essential_spend(logs):.2f}",
@@ -86,7 +93,7 @@ def day_detail(day: str):
     closing = rows[0]["closing"]
     return {
         "day": day,
-        "logs": [_log_out(l) for l in logs],
+        "logs": [_log_out(l, {m["id"]: m["name"] for m in ms}) for l in logs],
         "closing": [
             {"id": m["id"], "name": m["name"], **closing[str(m["id"])]}
             for m in ms if str(m["id"]) in closing
