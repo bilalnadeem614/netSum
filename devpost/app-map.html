@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>netSum app map</title>
+<style>
+  :root { --bg:#f5f4ef; --fg:#16191b; --muted:#656c72; --line:#dedcd3; --accent:#1c7a4b; --box:#fff; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f1113; --fg:#e7e9ea; --muted:#8b9399; --line:#262b2f; --accent:#3fb97c; --box:#16191c; } }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 system-ui,sans-serif; }
+  main { max-width:760px; margin:0 auto; padding:24px 16px 64px; }
+  h1 { margin:0 0 4px; } h2 { margin:32px 0 8px; font-size:13px; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); }
+  code { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.9em; background:var(--box); border:1px solid var(--line); padding:1px 5px; border-radius:4px; }
+  .muted { color:var(--muted); }
+  ol, ul { padding-left:20px; } li { margin-bottom:8px; }
+  details { border-top:1px solid var(--line); padding:10px 0; } summary { cursor:pointer; font-weight:600; }
+  svg { width:100%; height:auto; background:var(--box); border:1px solid var(--line); border-radius:6px; }
+  svg text { fill:var(--fg); font:13px system-ui,sans-serif; } svg .m { fill:var(--muted); font-size:11.5px; }
+  svg rect { fill:none; stroke:var(--line); stroke-width:1.5; } svg .k { stroke:var(--accent); }
+  svg path { stroke:var(--muted); fill:none; stroke-width:1.5; }
+</style>
+</head>
+<body>
+<main>
+  <h1>netSum app map</h1>
+  <p class="muted">A personal finance PWA that will not close a day until the balances you count match the balances it calculates.</p>
+
+  <h2>The three pieces</h2>
+  <ul>
+    <li><b>React app</b> (<code>frontend/</code>): screens, forms and charts. Holds no money rules.</li>
+    <li><b>FastAPI backend</b> (<code>backend/app/</code>): calculates balances and runs the day-close gate. The rule lives only here.</li>
+    <li><b>Supabase Postgres</b>: tables for methods, expenses, logs, closed days, loans, savings and the goal. Balances are never stored; they are calculated from logs.</li>
+  </ul>
+
+  <h2>One action: tap "Close day"</h2>
+  <svg viewBox="0 0 720 200" role="img" aria-label="Close day flows from the CloseDay screen to the close_day route, the differences function, then either a 409 shown in red or a saved day">
+    <rect x="10" y="70" width="150" height="60"/><text x="25" y="95">CloseDay.jsx</text><text class="m" x="25" y="115">close() sends real balances</text>
+    <rect x="200" y="70" width="170" height="60"/><text x="215" y="95">routes/days.py</text><text class="m" x="215" y="115">close_day()</text>
+    <rect x="410" y="70" width="150" height="60" class="k"/><text x="425" y="95">balances.py</text><text class="m" x="425" y="115">differences()</text>
+    <rect x="600" y="15" width="110" height="60"/><text x="612" y="40">409 + diff</text><text class="m" x="612" y="58">shown in red</text>
+    <rect x="600" y="125" width="110" height="60"/><text x="612" y="150">day saved</text><text class="m" x="612" y="168">Home resets</text>
+    <path d="M160 100H200M370 100H410M560 90L600 50M560 110L600 150"/>
+  </svg>
+
+  <h2>Reference route (not toured live)</h2>
+  <ol>
+    <li><code>frontend/src/pages/CloseDay.jsx</code>, search <code>async function close</code>: posts the typed real balances to <code>/close-day</code>, and on a <code>409</code> stores the per-method differences (<code>setDiff</code>) so those rows turn red.</li>
+    <li><code>backend/app/routes/days.py</code>, search <code>def close_day</code>: loads the open day, calculates balances, calls <code>balances.differences</code>. Any difference raises <code>HTTPException(409, ...)</code> and nothing is written. If all match, it inserts one row into <code>days</code>.</li>
+    <li><code>backend/app/balances.py</code>, search <code>def differences</code>: compares real and calculated with exact <code>Decimal</code> values. <code>def calculated</code> and <code>def opening</code> above it build the calculated balance from the previous closed day plus the day's logs.</li>
+  </ol>
+
+  <h2>To change this, start here</h2>
+  <ul>
+    <li>What counts as a match (for example, a small tolerance): <code>differences()</code> in <code>backend/app/balances.py</code>, then update <code>backend/tests/test_close_gate.py</code>.</li>
+    <li>How the close screen looks: <code>frontend/src/pages/CloseDay.jsx</code> and <code>.close-row</code> in <code>frontend/src/styles.css</code>.</li>
+    <li>Colours or the light/dark theme: the tokens at the top of <code>frontend/src/styles.css</code>.</li>
+    <li>A new table or field: <code>backend/schema.sql</code> (run it in Supabase), then the matching route in <code>backend/app/routes/</code>.</li>
+    <li>Database connection behaviour: <code>backend/app/db.py</code> (one client per thread, see below).</li>
+  </ul>
+
+  <h2>A practice to reuse</h2>
+  <details open>
+    <summary>Check the behaviour that can fail, not just the code that passes</summary>
+    <p>The close-day rules have unit tests in <code>backend/tests/test_close_gate.py</code> (a match closes, a mismatch reports the difference, <code>0.10 + 0.20</code> stays exact, the next day opens at the previous real balance). Those tests passed throughout.</p>
+    <p>Speeding up <code>/api/home</code> by running its queries in parallel passed every test and was verified by comparing the JSON before and after. In real use it still returned 500s, because the threads shared one Supabase HTTP/2 connection. The failure only showed under concurrent requests. The fix was one client per thread in <code>backend/app/db.py</code>, and the check that confirmed it was 90 simultaneous requests returning 200.</p>
+    <p>On another project: when a change affects how things run together (threads, caches, connections), write down the condition that could break it and test that condition directly, in addition to the unit tests.</p>
+  </details>
+
+  <h2>Run it again</h2>
+  <ul>
+    <li>Backend: <code>cd backend &amp;&amp; uvicorn app.main:app --reload</code> (needs <code>backend/.env</code>, see <code>.env.example</code>).</li>
+    <li>Frontend: <code>cd frontend &amp;&amp; npm run dev</code>, then open <code>http://localhost:5173</code>.</li>
+    <li>Tests: <code>cd backend &amp;&amp; pytest</code>.</li>
+  </ul>
+  <p class="muted">Snapshot of commit <code>cf70894</code>. Files change over time, so search for the symbols above if a path moves.</p>
+</main>
+</body>
+</html>

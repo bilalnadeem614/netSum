@@ -81,24 +81,24 @@ Build mode: fast (no commits by Claude; learner commits and pushes)
 
 ## Hands-on Checkpoints
 
-- [ ] Early usable behavior explored — after slice 3 (the day-close gate)
-- [ ] Final kick-the-tires exploration and feedback completed
+- [x] Early usable behavior explored — after slice 3 (the day-close gate); covered by the learner's end-to-end testing in the final review
+- [x] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
 
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [x] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
+- [x] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence:
-Route and stops:
-Edit outcome:
-Reflection:
-Activity mode:
+Activity and evidence: Brief evidence-based recap, not hands-on practice. Connected the close-day gate (`backend/tests/test_close_gate.py`) to the concurrency 500s found after the parallel-query speedup (unit tests and JSON comparison passed; failure only appeared under concurrent requests; fixed in `backend/app/db.py`, confirmed with 90 simultaneous requests returning 200).
+Route and stops: Reference route in the map, not toured live: `frontend/src/pages/CloseDay.jsx` (`async function close`), `backend/app/routes/days.py` (`def close_day`), `backend/app/balances.py` (`def differences`).
+Edit outcome: not applicable (no edit tried).
+Reflection: offered (one optional question), not yet answered.
+Activity mode: recap, map generated from finished code; not opened in a browser by me.
 
 ## Revisions
 - Added a light theme with a header toggle (follows system, remembers choice), a bottom tab bar, and a statement-style redesign — learner found the first UI generic and asked for a theme toggle; `prd.md > Look and Feel` and `spec.md > Look and Feel` specified dark only, so light is an addition and dark stays the look the learner chose.
