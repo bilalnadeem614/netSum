@@ -5,6 +5,7 @@ import Methods from './pages/onboarding/Methods.jsx'
 import Expenses from './pages/onboarding/Expenses.jsx'
 import LoansSavings from './pages/onboarding/LoansSavings.jsx'
 import Home from './pages/Home.jsx'
+import Loading from './components/Loading.jsx'
 
 const Sun = (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -55,7 +56,7 @@ export default function App() {
       ) : (
         <main>
           {error && <p className="banner">{error}</p>}
-          {screen === 'loading' && !error && <p className="muted">Loading…</p>}
+          {screen === 'loading' && !error && <Loading kind="home" />}
           {screen === 'welcome' && <Welcome onNext={() => setScreen('methods')} />}
           {screen === 'methods' && <Methods onDone={() => setScreen('expenses')} />}
           {screen === 'expenses' && <Expenses onDone={() => setScreen('loanssavings')} />}

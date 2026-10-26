@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api.js'
+import Loading from '../components/Loading.jsx'
 
 export default function History() {
   const [days, setDays] = useState(null)
@@ -13,7 +14,7 @@ export default function History() {
   const open = (day) => api(`/days/${day}`).then(setDetail).catch((e) => setError(e.message))
 
   if (error) return <p className="banner">{error}</p>
-  if (!days) return <p className="muted">Loading…</p>
+  if (!days) return <Loading />
 
   if (detail)
     return (

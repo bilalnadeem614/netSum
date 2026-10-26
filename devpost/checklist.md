@@ -102,3 +102,7 @@ Activity mode: recap, map generated from finished code; not opened in a browser 
 
 ## Revisions
 - Added a light theme with a header toggle (follows system, remembers choice), a bottom tab bar, and a statement-style redesign — learner found the first UI generic and asked for a theme toggle; `prd.md > Look and Feel` and `spec.md > Look and Feel` specified dark only, so light is an addition and dark stays the look the learner chose.
+- API key check removed from the backend — learner chose to skip it for the hackathon MVP; the public URL is open (see `README.md > Known limits`).
+- `/api/home` and `/api/close-preview` now fetch rows once and run independent Supabase reads in parallel (about 4 s to under 1 s) — then 500s appeared under concurrency because threads shared one HTTP/2 connection; fixed with one client per thread in `backend/app/db.py`.
+- Bottom tab bar with icons, pencil and bin icons on log rows, sun/moon theme toggle, and skeleton loaders added — learner asked for a less generic UI and better loading states; no router was needed.
+- Settings screen from the PRD not built — the proof of concept sets payment methods during onboarding only.

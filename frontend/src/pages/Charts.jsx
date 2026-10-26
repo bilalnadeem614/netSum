@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { api } from '../api.js'
+import Loading from '../components/Loading.jsx'
 
 const COLORS = ['var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)', 'var(--c5)', 'var(--c6)']
 const tip = { contentStyle: { background: 'var(--surface)', border: '1px solid var(--line)', color: 'var(--text)', borderRadius: 5 } }
@@ -14,7 +15,7 @@ export default function Charts() {
   }, [])
 
   if (error) return <p className="banner">{error}</p>
-  if (!data) return <p className="muted">Loading…</p>
+  if (!data) return <Loading kind="chart" />
 
   const num = (rows) => rows.map((r) => ({ name: r.name, total: +r.total }))
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { api } from '../api.js'
+import Loading from '../components/Loading.jsx'
 
 export default function Savings() {
   const [savings, setSavings] = useState(null)
@@ -20,7 +21,7 @@ export default function Savings() {
       .then(() => { setF({ name: '', starting_amount: '' }); load() })
       .catch((e) => setError(e.message))
 
-  if (!savings) return error ? <p className="banner">{error}</p> : <p className="muted">Loading…</p>
+  if (!savings) return error ? <p className="banner">{error}</p> : <Loading />
 
   const pct = goal ? Math.min(100, (goal.saved / goal.goal_amount) * 100) : 0
 

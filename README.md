@@ -17,7 +17,7 @@ Each payment method (cash, bank account, a metro card…) has its own balance. Y
 - **Loans and savings:** payments and deposits are normal logs, charted as remaining and growth.
 - **Saving goal:** a purpose, a target and a daily limit for non-essential spending, shown on Home.
 - **Charts:** spend by expense and by payment method.
-- **PWA:** installable, with a light and dark theme.
+- **PWA and UI:** installable; light and dark theme with a sun/moon toggle (follows your system by default); bottom tab bar; skeleton loading screens that explain a slow server wake-up.
 
 ## Stack
 
@@ -65,6 +65,7 @@ The free Render tier sleeps when idle, so the first request after a pause takes 
 
 - **No login.** One owner, one set of data. Anyone with the backend URL can read and change it. Real accounts would add a user id to each table and Supabase row-level security.
 - Closed days are read-only; there is no editing of history.
+- Payment methods are set during onboarding only; there is no Settings screen to change them afterwards.
 - Reminders ("I must pay X"), bill sharing and an AI saving-goal feature are not built.
 
 ## Project docs

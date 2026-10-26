@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { api } from '../api.js'
+import Loading from '../components/Loading.jsx'
 
 export default function Loans() {
   const [loans, setLoans] = useState(null)
@@ -13,7 +14,7 @@ export default function Loans() {
   const add = () =>
     api('/loans', [f]).then(() => { setF({ name: '', total: '' }); load() }).catch((e) => setError(e.message))
 
-  if (!loans) return error ? <p className="banner">{error}</p> : <p className="muted">Loading…</p>
+  if (!loans) return error ? <p className="banner">{error}</p> : <Loading />
 
   const data = loans.map((l) => ({ name: l.name, paid: +l.paid, remaining: +l.remaining }))
 

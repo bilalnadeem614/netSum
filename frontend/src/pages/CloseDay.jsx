@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api.js'
+import Loading from '../components/Loading.jsx'
 
 export default function CloseDay({ onClosed, onBack }) {
   const [preview, setPreview] = useState(null)
@@ -22,7 +23,7 @@ export default function CloseDay({ onClosed, onBack }) {
     }
   }
 
-  if (!preview) return error ? <p className="banner">{error}</p> : <p className="muted">Loading…</p>
+  if (!preview) return error ? <p className="banner">{error}</p> : <Loading />
 
   const filled = preview.methods.every((m) => real[m.id] !== undefined && real[m.id] !== '')
   const blocked = Object.keys(diff).length > 0

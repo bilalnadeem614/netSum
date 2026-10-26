@@ -62,13 +62,17 @@ PRD ref: `prd.md > Look and Feel`.
 - Clean sans-serif (Inter via system fallback), large tabular numerals for money.
 - Dense but calm, bank-statement feel. No rounded bright cards or habit-tracker styling. Straight-ish corners (4–6px radius).
 - Plain CSS with CSS variables in `frontend/src/styles.css`; no UI kit, so the look stays deliberate.
+- **Themes:** dark is the default look; a light "paper" theme is available from a sun/moon icon in the header. The first visit follows the system setting and the choice is remembered in the browser. Charts read the same CSS variables.
+- **Navigation:** a bottom tab bar with icons (Home, History, Charts, Savings, Loans).
+- **Statement style:** Home shows a large total, ruled rows per method and a ledger of today's logs with pencil and bin icons; amounts use monospace tabular figures.
+- **Loading:** skeleton placeholders shaped like each screen. After 5 seconds they add a "Waking the server" note for the Render cold start.
 - Copy is short and factual ("Difference: -250").
 - Phone-first layout, centered max-width column on desktop.
 
 ## Components
 
 ### Backend: Balance Engine
-Pure functions: `opening_balances(day)`, `calculated_balances(day)`. Opening = latest closed day's real balance per method, or the method's onboarding balance if none. Calculated = opening − sum of that day's logs for the method. Methods have no negative-balance rule.
+Pure functions: `opening(...)`, `calculated(...)`, `differences(...)` in `balances.py`; the route code fetches rows and passes them in. Independent Supabase reads run concurrently (`par`), and `db.py` gives each thread its own client. Opening = latest closed day's real balance per method, or the method's onboarding balance if none. Calculated = opening − sum of that day's logs for the method. Methods have no negative-balance rule.
 PRD ref: `prd.md > Daily Logs`, `prd.md > History` (next day's opening = previous real).
 
 ### Backend: Day-Close Gate
@@ -88,7 +92,7 @@ Welcome, Methods, Expenses, Loans and Savings screens, stepped. Shown only while
 PRD ref: `prd.md > Onboarding`, `prd.md > States and Boundaries` (First use).
 
 ### Frontend: Home and Add Log
-Balances strip (tap → Settings), today's log list, Add log form, Close day button, nav to Charts, Savings, Loans, History. If the open day is earlier than today, it shows a "Catching up: <date>" label.
+Total and per-method balances, today's log list with edit and delete icons, Add log form, Close day button, and the bottom tab bar. (The planned tap-the-strip → Settings screen was not built; see What Was Simplified.) If the open day is earlier than today, it shows a "Catching up: <date>" label.
 PRD ref: `prd.md > Daily Logs`, `prd.md > Screens and Layout`.
 
 ### Frontend: Close Day
@@ -144,14 +148,15 @@ netSum/
 │   └── .env.example
 ├── frontend/
 │   ├── src/
-│   │   ├── main.jsx, App.jsx    # router and layout
+│   │   ├── main.jsx, App.jsx    # theme toggle and onboarding flow (no router; Home switches views by tab)
 │   │   ├── api.js               # fetch wrapper for the backend
 │   │   ├── styles.css           # dark theme variables and base styles
+│   │   ├── components/Loading.jsx  # skeleton loaders
 │   │   └── pages/
 │   │       ├── onboarding/      # Welcome, Methods, Expenses, LoansSavings
 │   │       ├── Home.jsx, AddLog.jsx, CloseDay.jsx
 │   │       ├── History.jsx, Charts.jsx
-│   │       └── Savings.jsx, Loans.jsx, Settings.jsx
+│   │       └── Savings.jsx, Loans.jsx
 │   ├── index.html
 │   ├── vite.config.js           # includes vite-plugin-pwa
 │   └── .env.example
@@ -173,6 +178,7 @@ No other services.
 - **Render asleep (cold start) / Supabase paused** → first request is slow or fails; React shows a loading state then the banner below. Wake both before the demo.
 - **Backend or Supabase unreachable / paused** → React shows a plain "Can't reach server" banner and keeps the form values; no silent failure.
 - **Closed day edit attempt** → backend returns `403` and the UI shows closed days with no edit controls.
+- **Concurrent requests on one connection** → parallel reads that shared a single Supabase client returned 500 (`ConnectionTerminated`). Fixed with one client per thread in `db.py`; checked with 90 simultaneous requests.
 - **Decimal drift** → all money is `Decimal`/`numeric` and strings in JSON; the gate compares exact values and has a test with 0.10 + 0.20.
 
 ## What Was Simplified and Why
@@ -182,6 +188,8 @@ No other services.
 - **Logs only on the open day** — the PRD's backdated entry works by the open day being the oldest unclosed date, so there is no date picker and no out-of-order closing.
 - **Single goal** instead of multiple goals.
 - **Free-tier hosting, no custom domain, no CI** — push to deploy only.
+- **No Settings screen** — payment methods can only be set during onboarding; managing them later is a follow-up.
+- **No router** — Home swaps views by tab with component state, which is enough for five screens.
 - **Reminders, networking, bill sharing, AI feature** stay deferred (`prd.md > Deferred From the POC`).
 
 ## Decisions and Open Issues

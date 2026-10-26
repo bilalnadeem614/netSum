@@ -39,6 +39,8 @@ Success = a day closed with all methods matching.
 - Calm and serious, bank-app feel: dark background, one green accent for "matched", red for "mismatch", clean sans-serif font, large easy-to-read numbers.
 - Explicitly avoid: light, rounded, bright "habit tracker" look (learner called it generic AI slop).
 - PWA: phone-first, installable, also works in a desktop browser.
+- Build note: dark stays the default look; a light theme with a sun/moon toggle was added on the learner's request. Navigation is a bottom tab bar.
+- Build note: the Settings screen (manage methods after onboarding) was not built in the proof of concept.
 
 ## Features and Behavior
 
