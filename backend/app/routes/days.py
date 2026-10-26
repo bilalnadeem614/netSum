@@ -21,33 +21,37 @@ def _log_out(l):
 
 @router.get("/home")
 def home():
-    day = balances.open_day()
+    ms, last, st, expenses, loans, loan_logs, savings, saving_logs, goal = balances.par(
+        balances.methods, balances.last_closed, balances.settings,
+        lambda: balances._rows("expenses"), balances._loans_rows, lambda: balances._logs_with("loan_id"),
+        balances._savings_rows, lambda: balances._logs_with("saving_id"), balances._goal_rows,
+    )
+    day = balances._open_day(last, st)
     logs = balances.day_logs(day)
-    calc = balances.calculated_balances(day)
+    calc = balances.calculated(balances.opening(ms, last and last["closing"]), logs)
+    sv = balances.savings_totals(savings, saving_logs)
     return {
         "day": day,
         "balances": [
             {"id": m["id"], "name": m["name"], "kind": m["kind"], "balance": f"{calc[m['id']]:.2f}"}
-            for m in balances.methods()
+            for m in ms
         ],
         "logs": [_log_out(l) for l in logs],
-        "expenses": db().table("expenses").select("*").order("id").execute().data,
-        "goal": balances.goal_with_progress(),
+        "expenses": expenses,
+        "goal": balances.goal_progress(goal, sv),
         "non_essential_spent": f"{balances.non_essential_spend(logs):.2f}",
-        "loans": balances.loans_with_remaining(),
-        "savings": balances.savings_with_totals(),
+        "loans": balances.loans_remaining(loans, loan_logs),
+        "savings": sv,
     }
 
 
 @router.get("/close-preview")
 def close_preview():
-    calc = balances.calculated_balances(balances.open_day())
+    day = balances.open_day()
+    ms, calc, _ = balances.day_state(day)
     return {
-        "day": balances.open_day(),
-        "methods": [
-            {"id": m["id"], "name": m["name"], "calculated": f"{calc[m['id']]:.2f}"}
-            for m in balances.methods()
-        ],
+        "day": day,
+        "methods": [{"id": m["id"], "name": m["name"], "calculated": f"{calc[m['id']]:.2f}"} for m in ms],
         "total": f"{sum(calc.values()):.2f}",
     }
 
@@ -73,15 +77,18 @@ def days():
 
 @router.get("/days/{day}")
 def day_detail(day: str):
-    rows = db().table("days").select("*").eq("day", day).execute().data
+    rows, ms, logs = balances.par(
+        lambda: db().table("days").select("*").eq("day", day).execute().data,
+        balances.methods, lambda: balances.day_logs(day),
+    )
     if not rows:
         raise HTTPException(404, "day not closed")
     closing = rows[0]["closing"]
     return {
         "day": day,
-        "logs": [_log_out(l) for l in balances.day_logs(day)],
+        "logs": [_log_out(l) for l in logs],
         "closing": [
             {"id": m["id"], "name": m["name"], **closing[str(m["id"])]}
-            for m in balances.methods() if str(m["id"]) in closing
+            for m in ms if str(m["id"]) in closing
         ],
     }
