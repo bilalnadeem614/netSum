@@ -101,4 +101,4 @@ Reflection:
 Activity mode:
 
 ## Revisions
-
+- Added a light theme with a header toggle (follows system, remembers choice), a bottom tab bar, and a statement-style redesign — learner found the first UI generic and asked for a theme toggle; `prd.md > Look and Feel` and `spec.md > Look and Feel` specified dark only, so light is an addition and dark stays the look the learner chose.

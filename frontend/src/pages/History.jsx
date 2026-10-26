@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api.js'
 
-export default function History({ onBack }) {
+export default function History() {
   const [days, setDays] = useState(null)
   const [detail, setDetail] = useState(null)
   const [error, setError] = useState('')
@@ -18,40 +18,38 @@ export default function History({ onBack }) {
   if (detail)
     return (
       <section>
-        <p className="muted">{detail.day} · closed</p>
-        <h2>Closing balances</h2>
-        {detail.closing.map((c) => (
-          <div className="row" key={c.id}>
-            <span>{c.name}</span>
-            <strong className="num sm">{c.real}</strong>
-          </div>
-        ))}
-        <h2 className="gap">Logs</h2>
+        <div className="meta"><span className="mono">{detail.day}</span><span className="chip">Closed</span></div>
+        <h2 className="label">Closing balances</h2>
+        <div className="rows">
+          {detail.closing.map((c) => (
+            <div className="line" key={c.id}><span>{c.name}</span><span className="amt">{c.real}</span></div>
+          ))}
+        </div>
+        <h2 className="label">Logs</h2>
         {!detail.logs.length && <p className="muted">No logs that day.</p>}
-        {detail.logs.map((l) => (
-          <div className="row log" key={l.id}>
-            <span>
-              {l.expense}
-              <small className="muted">{l.description && ` · ${l.description}`}</small>
-            </span>
-            <strong className="num sm">-{l.amount}</strong>
-          </div>
-        ))}
-        <button className="ghost" onClick={() => setDetail(null)}>Back</button>
+        <div className="rows">
+          {detail.logs.map((l) => (
+            <div className="line" key={l.id}>
+              <div className="grow">{l.expense}<small>{l.description}</small></div>
+              <span className="amt">−{l.amount}</span>
+            </div>
+          ))}
+        </div>
+        <div className="actions"><button className="secondary" onClick={() => setDetail(null)}>All days</button></div>
       </section>
     )
 
   return (
     <section>
-      <h2>History</h2>
-      {!days.length && <p className="muted">No closed days yet.</p>}
-      {days.map((d) => (
-        <div className="row log" key={d.day}>
-          <span>{d.day}</span>
-          <button className="ghost" onClick={() => open(d.day)}>View</button>
-        </div>
-      ))}
-      <button className="ghost" onClick={onBack}>Back</button>
+      <h2 className="label">Closed days</h2>
+      {!days.length && <p className="muted">No closed days yet. Close your first day from Home.</p>}
+      <div className="rows">
+        {days.map((d) => (
+          <button key={d.day} className="line link-row" onClick={() => open(d.day)}>
+            <span className="mono">{d.day}</span><span className="muted">View →</span>
+          </button>
+        ))}
+      </div>
     </section>
   )
 }

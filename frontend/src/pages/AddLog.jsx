@@ -29,23 +29,31 @@ export default function AddLog({ home, log, onSaved, onCancel }) {
   }
 
   return (
-    <section className="panel">
+    <div className="sheet">
       <h2>{log ? 'Edit log' : 'Add log'}</h2>
-      <div className="row">
+      <label className="field"><span>What for</span>
         <select value={f.target} onChange={(e) => set({ target: e.target.value })}>
           {targets.map((x) => <option key={x.key} value={x.key}>{x.label}</option>)}
         </select>
-        <select value={f.method_id} onChange={(e) => set({ method_id: e.target.value })}>
-          {home.balances.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
-        </select>
+      </label>
+      <div className="grid2">
+        <label className="field"><span>Paid from</span>
+          <select value={f.method_id} onChange={(e) => set({ method_id: e.target.value })}>
+            {home.balances.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+          </select>
+        </label>
+        <label className="field"><span>Amount</span>
+          <input className="mono" type="number" step="0.01" inputMode="decimal" placeholder="0.00" value={f.amount} onChange={(e) => set({ amount: e.target.value })} />
+        </label>
       </div>
-      <div className="row">
-        <input type="number" step="0.01" inputMode="decimal" placeholder="Amount" value={f.amount} onChange={(e) => set({ amount: e.target.value })} />
-        <input placeholder="Note (optional)" value={f.description} onChange={(e) => set({ description: e.target.value })} />
-      </div>
+      <label className="field"><span>Note (optional)</span>
+        <input value={f.description} onChange={(e) => set({ description: e.target.value })} />
+      </label>
       {error && <p className="banner">{error}</p>}
-      <button disabled={!(+f.amount > 0) || !f.target} onClick={save}>Save</button>
-      <button className="ghost" onClick={onCancel}>Cancel</button>
-    </section>
+      <div className="actions">
+        <button disabled={!(+f.amount > 0) || !f.target} onClick={save}>Save</button>
+        <button className="secondary" onClick={onCancel}>Cancel</button>
+      </div>
+    </div>
   )
 }

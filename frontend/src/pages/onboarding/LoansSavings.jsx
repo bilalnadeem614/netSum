@@ -22,24 +22,30 @@ export default function LoansSavings({ onDone }) {
 
   return (
     <section>
-      <h2>Loans</h2>
+      <h1>Loans and savings</h1>
+      <p className="muted">Optional. You can add these later from their tabs.</p>
+      <h2 className="label">Loans</h2>
       {loans.map((r, i) => (
-        <div className="row" key={i}>
-          <input placeholder="Name" value={r.name} onChange={(e) => edit(loans, setLoans, i, { name: e.target.value })} />
-          <input type="number" step="0.01" placeholder="Amount owed" value={r.total} onChange={(e) => edit(loans, setLoans, i, { total: e.target.value })} />
+        <div className="grid2" key={i}>
+          <label className="field"><span>Name</span>
+            <input value={r.name} onChange={(e) => edit(loans, setLoans, i, { name: e.target.value })} /></label>
+          <label className="field"><span>Amount owed</span>
+            <input className="mono" type="number" step="0.01" inputMode="decimal" value={r.total} onChange={(e) => edit(loans, setLoans, i, { total: e.target.value })} /></label>
         </div>
       ))}
-      <button className="ghost" onClick={() => setLoans([...loans, { name: '', total: '' }])}>+ Add loan</button>
-      <h2 className="gap">Savings</h2>
+      <button className="secondary" onClick={() => setLoans([...loans, { name: '', total: '' }])}>+ Add loan</button>
+      <h2 className="label">Savings</h2>
       {savings.map((r, i) => (
-        <div className="row" key={i}>
-          <input placeholder="Name (e.g. Bank)" value={r.name} onChange={(e) => edit(savings, setSavings, i, { name: e.target.value })} />
-          <input type="number" step="0.01" placeholder="Saved so far" value={r.starting_amount} onChange={(e) => edit(savings, setSavings, i, { starting_amount: e.target.value })} />
+        <div className="grid2" key={i}>
+          <label className="field"><span>Name</span>
+            <input value={r.name} placeholder="e.g. Bank" onChange={(e) => edit(savings, setSavings, i, { name: e.target.value })} /></label>
+          <label className="field"><span>Saved so far</span>
+            <input className="mono" type="number" step="0.01" inputMode="decimal" value={r.starting_amount} onChange={(e) => edit(savings, setSavings, i, { starting_amount: e.target.value })} /></label>
         </div>
       ))}
-      <button className="ghost" onClick={() => setSavings([...savings, { name: '', starting_amount: '' }])}>+ Add saving</button>
+      <button className="secondary" onClick={() => setSavings([...savings, { name: '', starting_amount: '' }])}>+ Add saving</button>
       {error && <p className="banner">{error}</p>}
-      <div><button onClick={save}>{loans.length || savings.length ? 'Finish' : 'Skip'}</button></div>
+      <div className="actions"><button onClick={save}>{loans.length || savings.length ? 'Finish' : 'Skip'}</button></div>
     </section>
   )
 }

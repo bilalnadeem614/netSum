@@ -29,30 +29,35 @@ export default function CloseDay({ onClosed, onBack }) {
 
   return (
     <section>
-      <p className="muted">Close {preview.day}</p>
-      <h2>Count what you really have</h2>
-      {preview.methods.map((m) => {
-        const bad = diff[m.id] !== undefined
-        return (
-          <div className={`row close ${bad ? 'bad' : ''}`} key={m.id}>
-            <span>
-              {m.name}
-              <small className="muted"> calculated {m.calculated}</small>
-            </span>
-            <input
-              type="number" step="0.01" inputMode="decimal" placeholder="Real"
-              value={real[m.id] ?? ''}
-              onChange={(e) => { setReal({ ...real, [m.id]: e.target.value }); setDiff({}) }}
-            />
-            {bad && <strong className="red">Difference: {diff[m.id]}</strong>}
-          </div>
-        )
-      })}
-      <p className="muted">Total calculated: {preview.total}</p>
+      <div className="meta"><span className="mono">{preview.day}</span><span className="chip">Closing</span></div>
+      <h1>Count what you actually have</h1>
+      <p className="muted">Enter the real balance of each method. The day closes only when every one matches.</p>
+      <div className="rows">
+        {preview.methods.map((m) => {
+          const bad = diff[m.id] !== undefined
+          return (
+            <div className={`close-row ${bad ? 'bad' : ''}`} key={m.id}>
+              <div className="top">
+                <span>{m.name}</span>
+                <span className="muted">calculated <span className="amt">{m.calculated}</span></span>
+              </div>
+              <input
+                className="mono" type="number" step="0.01" inputMode="decimal" placeholder="Real balance" aria-label={`Real balance for ${m.name}`}
+                value={real[m.id] ?? ''}
+                onChange={(e) => { setReal({ ...real, [m.id]: e.target.value }); setDiff({}) }}
+              />
+              {bad && <div className="diff">Difference: <span className="mono">{diff[m.id]}</span></div>}
+            </div>
+          )
+        })}
+      </div>
+      <p className="muted" style={{ marginTop: 12 }}>Total calculated <span className="amt">{preview.total}</span></p>
       {blocked && <p className="banner">Day not closed. Add or edit logs, then try again.</p>}
       {error && <p className="banner">{error}</p>}
-      <button disabled={!filled} onClick={close}>Close day</button>
-      <button className="ghost" onClick={onBack}>Back</button>
+      <div className="actions">
+        <button disabled={!filled} onClick={close}>Close day</button>
+        <button className="secondary" onClick={onBack}>Back</button>
+      </div>
     </section>
   )
 }

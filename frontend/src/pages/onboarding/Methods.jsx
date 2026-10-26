@@ -21,25 +21,34 @@ export default function Methods({ onDone }) {
 
   return (
     <section>
-      <h2>Payment methods</h2>
+      <h1>Payment methods</h1>
+      <p className="muted">Enter what each one holds today. Cash and Account are always tracked.</p>
       {rows.map((r, i) => (
-        <div className="row" key={i}>
-          {r.kind === 'custom' ? (
-            <input placeholder="Name" value={r.name} onChange={(e) => set(i, { name: e.target.value })} />
-          ) : (
-            <span>{r.name}</span>
-          )}
-          <input
-            type="number" step="0.01" inputMode="decimal" placeholder="Opening balance"
-            value={r.opening_balance} onChange={(e) => set(i, { opening_balance: e.target.value })}
-          />
+        <div className="grid2" key={i}>
+          <label className="field">
+            <span>{r.kind === 'custom' ? 'Name' : 'Method'}</span>
+            {r.kind === 'custom' ? (
+              <input value={r.name} placeholder="e.g. Metro card" onChange={(e) => set(i, { name: e.target.value })} />
+            ) : (
+              <input value={r.name} disabled />
+            )}
+          </label>
+          <label className="field">
+            <span>Opening balance</span>
+            <input
+              className="mono" type="number" step="0.01" inputMode="decimal" placeholder="0.00"
+              value={r.opening_balance} onChange={(e) => set(i, { opening_balance: e.target.value })}
+            />
+          </label>
         </div>
       ))}
-      <button className="ghost" onClick={() => setRows([...rows, { name: '', kind: 'custom', opening_balance: '' }])}>
+      <button className="secondary" onClick={() => setRows([...rows, { name: '', kind: 'custom', opening_balance: '' }])}>
         + Add method
       </button>
       {error && <p className="banner">{error}</p>}
-      <button disabled={rows.some((r) => !r.name.trim())} onClick={save}>Continue</button>
+      <div className="actions">
+        <button disabled={rows.some((r) => !r.name.trim())} onClick={save}>Continue</button>
+      </div>
     </section>
   )
 }

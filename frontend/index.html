@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#101214" />
     <title>netSum</title>
+    <script>
+      // set theme before first paint to avoid a flash
+      try {
+        var t = localStorage.getItem('theme')
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+        document.documentElement.dataset.theme = t
+      } catch (e) { document.documentElement.dataset.theme = 'dark' }
+    </script>
   </head>
   <body>
     <div id="root"></div>
