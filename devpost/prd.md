@@ -80,6 +80,7 @@ Source: `scope.md > The Unique Kernel`.
 
 ### Charts of Usage
 - [ ] Spend charted by expense category and by payment method.
+- [ ] Income charted against spend by month, with an overview of total income, spend and net, and income broken down by source. Spend here means expenses only; transfers count as neither.
 
 ### Savings and Saving Goals
 - [ ] Savings list (e.g. cash, bank) with a chart showing the saved amount growing.

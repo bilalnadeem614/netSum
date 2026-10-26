@@ -16,7 +16,7 @@ Each payment method (cash, bank account, a metro card…) has its own balance. Y
 - **History:** closed days as read-only statements with their logs and closing balances. Each day opens at the previous day's real balance.
 - **Loans and savings:** payments and deposits are normal logs, charted as remaining and growth.
 - **Saving goal:** a purpose, a target and a daily limit for non-essential spending, shown on Home.
-- **Charts:** spend by expense and by payment method.
+- **Charts:** an overview of income, spend and net; income vs spend by month; spend by expense and by payment method; income by source.
 - **PWA and UI:** installable; light and dark theme with a sun/moon toggle (follows your system by default); bottom tab bar; skeleton loading screens that explain a slow server wake-up.
 
 ## Stack

@@ -86,7 +86,7 @@ Methods, expenses, logs of any kind — spend, income, transfer (create, edit, d
 PRD ref: `prd.md > Onboarding`, `prd.md > Daily Logs`, `prd.md > Loans`, `prd.md > Savings and Saving Goals`.
 
 ### Backend: Reports
-`GET /api/charts/spend` returns spend grouped by expense and by method, over closed and open days. `GET /api/days`, `GET /api/days/{date}` serve History.
+`GET /api/charts/spend` returns spend grouped by expense and by method, over closed and open days. `GET /api/charts/cashflow` returns income and spend per month, income by source, and the income, spend and net totals (spend = expenses only; transfers count as neither). `GET /api/days`, `GET /api/days/{date}` serve History.
 PRD ref: `prd.md > Charts of Usage`, `prd.md > History`.
 
 ### Frontend: Onboarding
@@ -106,7 +106,7 @@ List of closed days (newest first), empty message when none; detail view with lo
 PRD ref: `prd.md > History`.
 
 ### Frontend: Charts, Savings and Goals, Loans
-Recharts pie and bar for spend; line or bar for savings growth and goal progress; pie or bar for loan remaining. A goal has a purpose, amount, and daily threshold; Home shows today's non-essential spend against the threshold.
+Recharts pie and bar for spend and income (an overview, income vs spend by month, income by source); line or bar for savings growth and goal progress; pie or bar for loan remaining. A goal has a purpose, amount, and daily threshold; Home shows today's non-essential spend against the threshold.
 PRD ref: `prd.md > Charts of Usage`, `prd.md > Savings and Saving Goals`, `prd.md > Loans`.
 
 ### Frontend: PWA Shell
