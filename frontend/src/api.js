@@ -12,6 +12,6 @@ export async function api(path, body, method) {
     throw new Error("Can't reach server")
   }
   const data = await res.json().catch(() => null)
-  if (!res.ok) throw Object.assign(new Error(typeof data?.detail === 'string' ? data.detail : res.statusText), { status: res.status, data })
+  if (!res.ok) throw Object.assign(new Error(typeof data?.detail === 'string' ? data.detail : data?.detail?.[0]?.msg || res.statusText), { status: res.status, data })
   return data
 }

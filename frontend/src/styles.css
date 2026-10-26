@@ -192,3 +192,5 @@ input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner
   .modal-panel { border-radius: 10px; }
 }
 @media (prefers-reduced-motion: reduce) { .modal-panel { animation: none; } }
+
+input.invalid { border-color: var(--danger); }

@@ -114,7 +114,7 @@ Web manifest and service worker via vite-plugin-pwa so it is installable. The se
 PRD ref: `prd.md > Look and Feel` (PWA).
 
 ## Data Model
-Money is `numeric(12,2)` in Postgres and `Decimal` in Python, never float; JSON carries it as a string. Currency is not hardcoded.
+Money is `numeric(12,2)` in Postgres and `Decimal` in Python, never float; JSON carries it as a string. Amounts go in and out with exactly two decimal places (prices converted from another currency, such as 1234.98, are stored exactly): the `Money` types in `schemas.py` reject a third decimal with 422 instead of rounding, every response formats money with `balances.fmt2`, and the frontend `MoneyInput` component flags more than two decimals as the person types. Currency is not hardcoded.
 
 | Table | Columns | Notes |
 |---|---|---|
@@ -183,6 +183,7 @@ No other services.
 - **Closed day edit attempt** → backend returns `403` and the UI shows closed days with no edit controls.
 - **Concurrent requests on one connection** → parallel reads that shared a single Supabase client returned 500 (`ConnectionTerminated`). Fixed with one client per thread in `db.py`; checked with 90 simultaneous requests.
 - **Decimal drift** → all money is `Decimal`/`numeric` and strings in JSON; the gate compares exact values and has a test with 0.10 + 0.20.
+- **A third decimal typed or sent** → rejected with 422 (and flagged red in the form) so a value is never silently rounded before it reaches the gate.
 
 ## What Was Simplified and Why
 - **No login, single owner** instead of Supabase Auth with per-user rules — auth does not prove the kernel. Multi-user adds a user_id column and RLS later.

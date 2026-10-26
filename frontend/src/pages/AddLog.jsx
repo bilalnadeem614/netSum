@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { api } from '../api.js'
 import Select from '../components/Select.jsx'
+import MoneyInput, { isMoney } from '../components/MoneyInput.jsx'
 
 const KINDS = [['spend', 'Spend'], ['income', 'Income'], ['transfer', 'Transfer']]
 
@@ -49,7 +50,7 @@ export default function AddLog({ home, log, onSaved, onCancel }) {
   )
   const amount = (
     <label className="field"><span>Amount</span>
-      <input className="mono" type="number" step="0.01" inputMode="decimal" placeholder="0.00" value={f.amount} onChange={(e) => set({ amount: e.target.value })} />
+      <MoneyInput value={f.amount} onChange={(amount) => set({ amount })} />
     </label>
   )
   const note = (label) => (
@@ -58,7 +59,7 @@ export default function AddLog({ home, log, onSaved, onCancel }) {
     </label>
   )
 
-  const ready = +f.amount > 0 && (
+  const ready = isMoney(f.amount) && +f.amount > 0 && (
     kind === 'spend' ? !!f.target
     : kind === 'income' ? !!f.description.trim()
     : +f.method_id !== +f.to_method_id

@@ -1,13 +1,19 @@
 from decimal import Decimal
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, model_validator
+
+
+# Money in: at most 2 decimal places, 12 digits (matches numeric(12,2)). Extra places are rejected, never rounded.
+Money = Annotated[Decimal, Field(max_digits=12, decimal_places=2)]
+PositiveMoney = Annotated[Decimal, Field(gt=0, max_digits=12, decimal_places=2)]
+NonNegativeMoney = Annotated[Decimal, Field(ge=0, max_digits=12, decimal_places=2)]
 
 
 class MethodIn(BaseModel):
     name: str
     kind: Literal["cash", "account", "custom"]
-    opening_balance: Decimal
+    opening_balance: Money
 
 
 class ExpenseIn(BaseModel):
@@ -18,12 +24,12 @@ class ExpenseIn(BaseModel):
 
 class LoanIn(BaseModel):
     name: str
-    total: Decimal = Field(gt=0)
+    total: PositiveMoney
 
 
 class SavingIn(BaseModel):
     name: str
-    starting_amount: Decimal = Field(ge=0, default=0)
+    starting_amount: NonNegativeMoney = Decimal(0)
 
 
 class LogIn(BaseModel):
@@ -33,7 +39,7 @@ class LogIn(BaseModel):
     expense_id: int | None = None
     loan_id: int | None = None
     saving_id: int | None = None
-    amount: Decimal = Field(gt=0)
+    amount: PositiveMoney
     description: str | None = None  # spend/transfer: note; income: the source (required)
 
     @model_validator(mode="after")
@@ -52,10 +58,10 @@ class LogIn(BaseModel):
 
 
 class CloseIn(BaseModel):
-    real: dict[int, Decimal]
+    real: dict[int, Money]
 
 
 class GoalIn(BaseModel):
     purpose: str
-    goal_amount: Decimal = Field(gt=0)
-    daily_threshold: Decimal = Field(ge=0)
+    goal_amount: PositiveMoney
+    daily_threshold: NonNegativeMoney

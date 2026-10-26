@@ -5,6 +5,7 @@ import Loading from '../components/Loading.jsx'
 
 const COLORS = ['var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)', 'var(--c5)', 'var(--c6)']
 const tip = { contentStyle: { background: 'var(--surface)', border: '1px solid var(--line)', color: 'var(--text)', borderRadius: 5 } }
+const money = (v) => Number(v).toFixed(2)
 const num = (rows) => rows.map((r) => ({ name: r.name, total: +r.total }))
 
 function Donut({ rows }) {
@@ -16,7 +17,7 @@ function Donut({ rows }) {
             <Pie data={num(rows)} dataKey="total" nameKey="name" innerRadius={45} outerRadius={80} stroke="var(--bg)">
               {rows.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
             </Pie>
-            <Tooltip {...tip} />
+            <Tooltip {...tip} formatter={money} />
           </PieChart>
         </ResponsiveContainer>
       </div>
@@ -65,7 +66,7 @@ export default function Charts() {
             <BarChart data={months}>
               <XAxis dataKey="month" stroke="var(--muted)" tickLine={false} axisLine={{ stroke: 'var(--line)' }} />
               <YAxis stroke="var(--muted)" tickLine={false} axisLine={false} />
-              <Tooltip {...tip} cursor={{ fill: 'var(--chip)' }} />
+              <Tooltip {...tip} formatter={money} cursor={{ fill: 'var(--chip)' }} />
               <Legend wrapperStyle={{ color: 'var(--muted)' }} />
               <Bar dataKey="Income" fill="var(--c1)" radius={[3, 3, 0, 0]} />
               <Bar dataKey="Spend" fill="var(--c3)" radius={[3, 3, 0, 0]} />
@@ -85,7 +86,7 @@ export default function Charts() {
             <BarChart data={num(data.by_method)}>
               <XAxis dataKey="name" stroke="var(--muted)" tickLine={false} axisLine={{ stroke: 'var(--line)' }} />
               <YAxis stroke="var(--muted)" tickLine={false} axisLine={false} />
-              <Tooltip {...tip} cursor={{ fill: 'var(--chip)' }} />
+              <Tooltip {...tip} formatter={money} cursor={{ fill: 'var(--chip)' }} />
               <Bar dataKey="total" fill="var(--c1)" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

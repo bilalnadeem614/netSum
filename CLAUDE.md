@@ -20,6 +20,7 @@ Plans: `devpost/scope.md`, `devpost/prd.md`, `devpost/spec.md`. Build progress: 
 
 ## Rules
 - Money is `Decimal` in Python, `numeric(12,2)` in Postgres, string in JSON. Never float.
+- Money in: at most 2 decimal places and 12 digits, enforced by the `Money` types in `backend/app/schemas.py` (extra decimals are rejected with 422, never rounded). Money out: always a 2-decimal string via `balances.fmt2`. The frontend uses `MoneyInput` for every amount field.
 - Day-close gate lives only in `backend/app/balances.py` and `backend/app/routes/days.py`.
 - Closed days are read-only (403 on edit).
 - Secrets only in git-ignored `.env`; commit `.env.example`.

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { api } from '../../api.js'
+import MoneyInput, { isMoney } from '../../components/MoneyInput.jsx'
 
 export default function Methods({ onDone }) {
   const [rows, setRows] = useState([
@@ -35,10 +36,7 @@ export default function Methods({ onDone }) {
           </label>
           <label className="field">
             <span>Opening balance</span>
-            <input
-              className="mono" type="number" step="0.01" inputMode="decimal" placeholder="0.00"
-              value={r.opening_balance} onChange={(e) => set(i, { opening_balance: e.target.value })}
-            />
+            <MoneyInput value={r.opening_balance} onChange={(v) => set(i, { opening_balance: v })} />
           </label>
         </div>
       ))}
@@ -47,7 +45,7 @@ export default function Methods({ onDone }) {
       </button>
       {error && <p className="banner">{error}</p>}
       <div className="actions">
-        <button disabled={rows.some((r) => !r.name.trim())} onClick={save}>Continue</button>
+        <button disabled={rows.some((r) => !r.name.trim() || (r.opening_balance !== '' && !isMoney(r.opening_balance)))} onClick={save}>Continue</button>
       </div>
     </section>
   )

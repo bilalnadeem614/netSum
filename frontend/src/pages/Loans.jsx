@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { api } from '../api.js'
 import Loading from '../components/Loading.jsx'
+import MoneyInput, { isMoney } from '../components/MoneyInput.jsx'
 
 export default function Loans() {
   const [loans, setLoans] = useState(null)
@@ -36,7 +37,7 @@ export default function Loans() {
             <BarChart data={data} layout="vertical">
               <XAxis type="number" stroke="var(--muted)" tickLine={false} axisLine={false} />
               <YAxis type="category" dataKey="name" stroke="var(--muted)" width={70} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={{ background: 'var(--surface)', border: '1px solid var(--line)', color: 'var(--text)' }} cursor={{ fill: 'var(--chip)' }} />
+              <Tooltip formatter={(v) => Number(v).toFixed(2)} contentStyle={{ background: 'var(--surface)', border: '1px solid var(--line)', color: 'var(--text)' }} cursor={{ fill: 'var(--chip)' }} />
               <Bar dataKey="paid" stackId="a" fill="var(--c1)" />
               <Bar dataKey="remaining" stackId="a" fill="var(--line)" />
             </BarChart>
@@ -48,10 +49,10 @@ export default function Loans() {
         <label className="field"><span>Name</span>
           <input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></label>
         <label className="field"><span>Amount owed</span>
-          <input className="mono" type="number" step="0.01" inputMode="decimal" value={f.total} onChange={(e) => setF({ ...f, total: e.target.value })} /></label>
+          <MoneyInput value={f.total} onChange={(total) => setF({ ...f, total })} /></label>
       </div>
       {error && <p className="banner">{error}</p>}
-      <div className="actions"><button disabled={!f.name.trim() || !(+f.total > 0)} onClick={add}>Add loan</button></div>
+      <div className="actions"><button disabled={!f.name.trim() || !isMoney(f.total) || !(+f.total > 0)} onClick={add}>Add loan</button></div>
     </section>
   )
 }

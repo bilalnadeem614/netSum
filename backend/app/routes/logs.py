@@ -31,14 +31,16 @@ def _check_income(item):
 def add_log(item: LogIn):
     _check_income(item)
     row = {**item.model_dump(mode="json"), "day": balances.open_day()}
-    return db().table("logs").insert(row).execute().data[0]
+    saved = db().table("logs").insert(row).execute().data[0]
+    return {"id": saved["id"], "amount": balances.fmt2(saved["amount"])}
 
 
 @router.put("/logs/{log_id}")
 def edit_log(log_id: int, item: LogIn):
     _open_log(log_id)
     _check_income(item)
-    return db().table("logs").update(item.model_dump(mode="json")).eq("id", log_id).execute().data[0]
+    saved = db().table("logs").update(item.model_dump(mode="json")).eq("id", log_id).execute().data[0]
+    return {"id": saved["id"], "amount": balances.fmt2(saved["amount"])}
 
 
 @router.delete("/logs/{log_id}")

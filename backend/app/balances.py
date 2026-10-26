@@ -7,6 +7,11 @@ from .db import db
 _pool = ThreadPoolExecutor(max_workers=10)
 
 
+def fmt2(x):
+    """Money out: exactly two decimals, as a string. Accepts the float Supabase returns."""
+    return f"{Decimal(str(x)):.2f}"
+
+
 def par(*fns):
     """Run independent DB reads concurrently; Supabase latency dominates, not CPU."""
     return [f.result() for f in [_pool.submit(fn) for fn in fns]]

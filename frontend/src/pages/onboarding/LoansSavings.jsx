@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { api } from '../../api.js'
+import MoneyInput, { isMoney } from '../../components/MoneyInput.jsx'
 
 export default function LoansSavings({ onDone }) {
   const [loans, setLoans] = useState([])
@@ -10,8 +11,8 @@ export default function LoansSavings({ onDone }) {
 
   async function save() {
     try {
-      const l = loans.filter((r) => r.name.trim() && +r.total > 0)
-      const s = savings.filter((r) => r.name.trim())
+      const l = loans.filter((r) => r.name.trim() && isMoney(r.total) && +r.total > 0)
+      const s = savings.filter((r) => r.name.trim() && (r.starting_amount === '' || isMoney(r.starting_amount))).map((r) => ({ ...r, starting_amount: r.starting_amount || '0' }))
       if (l.length) await api('/loans', l)
       if (s.length) await api('/savings', s)
       onDone()
@@ -30,7 +31,7 @@ export default function LoansSavings({ onDone }) {
           <label className="field"><span>Name</span>
             <input value={r.name} onChange={(e) => edit(loans, setLoans, i, { name: e.target.value })} /></label>
           <label className="field"><span>Amount owed</span>
-            <input className="mono" type="number" step="0.01" inputMode="decimal" value={r.total} onChange={(e) => edit(loans, setLoans, i, { total: e.target.value })} /></label>
+            <MoneyInput value={r.total} onChange={(v) => edit(loans, setLoans, i, { total: v })} /></label>
         </div>
       ))}
       <button className="secondary" onClick={() => setLoans([...loans, { name: '', total: '' }])}>+ Add loan</button>
@@ -40,7 +41,7 @@ export default function LoansSavings({ onDone }) {
           <label className="field"><span>Name</span>
             <input value={r.name} placeholder="e.g. Bank" onChange={(e) => edit(savings, setSavings, i, { name: e.target.value })} /></label>
           <label className="field"><span>Saved so far</span>
-            <input className="mono" type="number" step="0.01" inputMode="decimal" value={r.starting_amount} onChange={(e) => edit(savings, setSavings, i, { starting_amount: e.target.value })} /></label>
+            <MoneyInput value={r.starting_amount} onChange={(v) => edit(savings, setSavings, i, { starting_amount: v })} /></label>
         </div>
       ))}
       <button className="secondary" onClick={() => setSavings([...savings, { name: '', starting_amount: '' }])}>+ Add saving</button>

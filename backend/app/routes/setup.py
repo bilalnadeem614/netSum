@@ -24,7 +24,8 @@ def add_methods(items: list[MethodIn]):
         raise HTTPException(422, "no methods")
     db().table("settings").upsert({"id": 1, "start_date": str(date.today())}, ignore_duplicates=True).execute()
     rows = [m.model_dump(mode="json") for m in items]
-    return db().table("payment_methods").insert(rows).execute().data
+    saved = db().table("payment_methods").insert(rows).execute().data
+    return [{**m, "opening_balance": balances.fmt2(m["opening_balance"])} for m in saved]
 
 
 @router.post("/expenses")

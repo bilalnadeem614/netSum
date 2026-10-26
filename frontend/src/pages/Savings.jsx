@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { api } from '../api.js'
 import Loading from '../components/Loading.jsx'
+import MoneyInput, { isMoney } from '../components/MoneyInput.jsx'
 
 export default function Savings() {
   const [savings, setSavings] = useState(null)
@@ -41,11 +42,11 @@ export default function Savings() {
         <label className="field"><span>Purpose</span>
           <input value={g.purpose} onChange={(e) => setG({ ...g, purpose: e.target.value })} /></label>
         <label className="field"><span>Goal amount</span>
-          <input className="mono" type="number" step="0.01" inputMode="decimal" value={g.goal_amount} onChange={(e) => setG({ ...g, goal_amount: e.target.value })} /></label>
+          <MoneyInput value={g.goal_amount} onChange={(goal_amount) => setG({ ...g, goal_amount })} /></label>
       </div>
       <label className="field"><span>Daily limit for non-essential spending</span>
-        <input className="mono" type="number" step="0.01" inputMode="decimal" value={g.daily_threshold} onChange={(e) => setG({ ...g, daily_threshold: e.target.value })} /></label>
-      <button className="secondary" disabled={!g.purpose.trim() || !(+g.goal_amount > 0) || g.daily_threshold === ''} onClick={saveGoal}>
+        <MoneyInput value={g.daily_threshold} onChange={(daily_threshold) => setG({ ...g, daily_threshold })} /></label>
+      <button className="secondary" disabled={!g.purpose.trim() || !isMoney(g.goal_amount) || !(+g.goal_amount > 0) || !isMoney(g.daily_threshold)} onClick={saveGoal}>
         {goal ? 'Update goal' : 'Set goal'}
       </button>
 
@@ -61,7 +62,7 @@ export default function Savings() {
                   <CartesianGrid stroke="var(--line)" vertical={false} />
                   <XAxis dataKey="day" stroke="var(--muted)" tickLine={false} axisLine={false} />
                   <YAxis stroke="var(--muted)" domain={['auto', 'auto']} tickLine={false} axisLine={false} />
-                  <Tooltip contentStyle={{ background: 'var(--surface)', border: '1px solid var(--line)', color: 'var(--text)' }} />
+                  <Tooltip formatter={(v) => Number(v).toFixed(2)} contentStyle={{ background: 'var(--surface)', border: '1px solid var(--line)', color: 'var(--text)' }} />
                   <Line dataKey="total" stroke="var(--c1)" strokeWidth={2} dot />
                 </LineChart>
               </ResponsiveContainer>
@@ -75,10 +76,10 @@ export default function Savings() {
         <label className="field"><span>Name</span>
           <input value={f.name} placeholder="e.g. Bank" onChange={(e) => setF({ ...f, name: e.target.value })} /></label>
         <label className="field"><span>Saved so far</span>
-          <input className="mono" type="number" step="0.01" inputMode="decimal" value={f.starting_amount} onChange={(e) => setF({ ...f, starting_amount: e.target.value })} /></label>
+          <MoneyInput value={f.starting_amount} onChange={(starting_amount) => setF({ ...f, starting_amount })} /></label>
       </div>
       {error && <p className="banner">{error}</p>}
-      <div className="actions"><button disabled={!f.name.trim()} onClick={add}>Add saving</button></div>
+      <div className="actions"><button disabled={!f.name.trim() || (f.starting_amount !== '' && !isMoney(f.starting_amount))} onClick={add}>Add saving</button></div>
     </section>
   )
 }

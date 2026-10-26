@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api.js'
 import Loading from '../components/Loading.jsx'
+import MoneyInput, { isMoney } from '../components/MoneyInput.jsx'
 
 export default function CloseDay({ onClosed, onBack }) {
   const [preview, setPreview] = useState(null)
@@ -25,7 +26,7 @@ export default function CloseDay({ onClosed, onBack }) {
 
   if (!preview) return error ? <p className="banner">{error}</p> : <Loading />
 
-  const filled = preview.methods.every((m) => real[m.id] !== undefined && real[m.id] !== '')
+  const filled = preview.methods.every((m) => isMoney(real[m.id] ?? ''))
   const blocked = Object.keys(diff).length > 0
 
   return (
@@ -42,10 +43,10 @@ export default function CloseDay({ onClosed, onBack }) {
                 <span>{m.name}</span>
                 <span className="muted">calculated <span className="amt">{m.calculated}</span></span>
               </div>
-              <input
-                className="mono" type="number" step="0.01" inputMode="decimal" placeholder="Real balance" aria-label={`Real balance for ${m.name}`}
+              <MoneyInput
+                placeholder="Real balance" aria-label={`Real balance for ${m.name}`}
                 value={real[m.id] ?? ''}
-                onChange={(e) => { setReal({ ...real, [m.id]: e.target.value }); setDiff({}) }}
+                onChange={(v) => { setReal({ ...real, [m.id]: v }); setDiff({}) }}
               />
               {bad && <div className="diff">Difference: <span className="mono">{diff[m.id]}</span></div>}
             </div>
